@@ -15,21 +15,9 @@ ifeq ($(TARGET_ARCH_ABI), armeabi-v7a)
 LOCAL_CFLAGS += -mno-unaligned-access
 endif
 
-ifneq ($(PICS_URL),)
-LOCAL_CFLAGS += -DDEFAULT_PIC_URL=\"$(PICS_URL)\"
-endif
+LOCAL_CFLAGS += -DDEFAULT_JHDPIC_URL=\"https://edokcg.coding.net/p/edokcg/d/hdpics/git/raw/master/{}.jpg\" -DDEFAULT_PIC_URL=\"https://edokcg.coding.net/p/edokcg/d/pics/git/raw/master/{}.jpg\" -DDEFAULT_FIELD_URL=\"https://edokcg.coding.net/p/edokcg/d/pics/git/raw/master/field/{}.jpg\" -DDEFAULT_COVER_URL=\"https://edokcg.coding.net/p/edokcg/d/pics/git/raw/master/cover/{}.jpg\" -DUPDATE_URL=\"https://edokcg.coding.net/p/edokcg/d/upgradekcg/git/raw/master/updateV9.json\" -DZip=\"apr1P3fQAtW1MvimAoBvfHRlm1MJqAQy1\" -DUpdate_PW=\"Kwincgv9\"
 
-ifneq ($(FIELDS_URL),)
-LOCAL_CFLAGS += -DDEFAULT_FIELD_URL=\"$(FIELDS_URL)\"
-endif
 
-ifneq ($(COVERS_URL),)
-LOCAL_CFLAGS += -DDEFAULT_COVER_URL=\"$(COVERS_URL)\"
-endif
-
-ifneq ($(UPDATE_URL),)
-LOCAL_CFLAGS += -DUPDATE_URL=\"$(UPDATE_URL)\"
-endif
 
 CLASSES_PATH := $(LOCAL_PATH)/deps
 GFRAME_PATH := $(CLASSES_PATH)/gframe
