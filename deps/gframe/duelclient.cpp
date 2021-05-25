@@ -68,7 +68,7 @@ uint16_t DuelClient::temp_port = 0;
 uint16_t DuelClient::temp_ver = 0;
 bool DuelClient::try_needed = false;
 
-std::pair<uint32_t, uint16_t> DuelClient::ResolveServer(epro::stringview address, epro::stringview port) {
+std::pair<uint32_t, uint16_t> DuelClient::ResolveServer(epro::stringview address, int port) {
 	uint32_t remote_addr = htonl(inet_addr(address.data()));
 	if(remote_addr == -1) {
 		evutil_addrinfo hints{};
@@ -77,7 +77,7 @@ std::pair<uint32_t, uint16_t> DuelClient::ResolveServer(epro::stringview address
 		hints.ai_socktype = SOCK_STREAM;
 		hints.ai_protocol = IPPROTO_TCP;
 		hints.ai_flags = EVUTIL_AI_ADDRCONFIG;
-		if(evutil_getaddrinfo(address.data(), port.data(), &hints, &answer) != 0)
+		if(evutil_getaddrinfo(address.data(), fmt::to_string(port).data(), &hints, &answer) != 0)
 			throw std::runtime_error("Host not resolved");
 
 		char ip[46];
@@ -88,7 +88,7 @@ std::pair<uint32_t, uint16_t> DuelClient::ResolveServer(epro::stringview address
 			throw std::runtime_error("Host not resolved");
 		remote_addr = htonl(inet_addr(ip));
 	}
-	return { remote_addr, static_cast<uint16_t>(std::stoi({port.data(), port.size()})) };
+	return { remote_addr, static_cast<uint16_t>(port) };
 }
 
 bool DuelClient::StartClient(uint32_t ip, uint16_t port, uint32_t gameid, bool create_game) {
@@ -650,6 +650,18 @@ void DuelClient::HandleSTOCPacketLan2(char* data, uint32_t len) {
 		mainGame->btnSideShuffle->setVisible(true);
 		mainGame->btnSideSort->setVisible(true);
 		mainGame->btnSideReload->setVisible(true);
+		if(mainGame->wQuery->isVisible())
+			mainGame->HideElement(mainGame->wQuery);
+		if(mainGame->wPosSelect->isVisible())
+			mainGame->HideElement(mainGame->wPosSelect);
+		if(mainGame->wCardSelect->isVisible())
+			mainGame->HideElement(mainGame->wCardSelect);
+		if(mainGame->wCardDisplay->isVisible())
+			mainGame->HideElement(mainGame->wCardDisplay);
+		if(mainGame->wANNumber->isVisible())
+			mainGame->HideElement(mainGame->wANNumber);
+		if(mainGame->wANCard->isVisible())
+			mainGame->HideElement(mainGame->wANCard);
 		if(mainGame->dInfo.player_type < 7)
 			mainGame->btnLeaveGame->setVisible(false);
 		mainGame->btnSpectatorSwap->setVisible(false);
@@ -982,6 +994,16 @@ void DuelClient::HandleSTOCPacketLan2(char* data, uint32_t len) {
 			mainGame->btnCancelOrFinish->setVisible(false);
 			if(mainGame->wQuery->isVisible())
 				mainGame->HideElement(mainGame->wQuery);
+			if(mainGame->wPosSelect->isVisible())
+				mainGame->HideElement(mainGame->wPosSelect);
+			if(mainGame->wCardSelect->isVisible())
+				mainGame->HideElement(mainGame->wCardSelect);
+			if(mainGame->wCardDisplay->isVisible())
+				mainGame->HideElement(mainGame->wCardDisplay);
+			if(mainGame->wANNumber->isVisible())
+				mainGame->HideElement(mainGame->wANNumber);
+			if(mainGame->wANCard->isVisible())
+				mainGame->HideElement(mainGame->wANCard);
 			mainGame->PopupElement(mainGame->wMessage);
 			mainGame->actionSignal.Wait(lock);
 			mainGame->closeDuelWindow = true;
@@ -1112,6 +1134,18 @@ void DuelClient::HandleSTOCPacketLan2(char* data, uint32_t len) {
 	case STOC_REMATCH: {
 		std::lock_guard<std::mutex> lock(mainGame->gMutex);
 		mainGame->dInfo.checkRematch = true;
+		if(mainGame->wQuery->isVisible())
+			mainGame->HideElement(mainGame->wQuery);
+		if(mainGame->wPosSelect->isVisible())
+			mainGame->HideElement(mainGame->wPosSelect);
+		if(mainGame->wCardSelect->isVisible())
+			mainGame->HideElement(mainGame->wCardSelect);
+		if(mainGame->wCardDisplay->isVisible())
+			mainGame->HideElement(mainGame->wCardDisplay);
+		if(mainGame->wANNumber->isVisible())
+			mainGame->HideElement(mainGame->wANNumber);
+		if(mainGame->wANCard->isVisible())
+			mainGame->HideElement(mainGame->wANCard);
 		mainGame->stQMessage->setText(gDataManager->GetSysString(1989).data());
 		mainGame->PopupElement(mainGame->wQuery);
 		break;

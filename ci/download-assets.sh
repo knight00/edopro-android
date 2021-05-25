@@ -23,7 +23,8 @@ git submodule update --init --recursive --force
 cd ..
 
 rsync -ar --exclude='.*' --exclude='*.sh' --exclude='script/.*' \
-	--exclude='expansions/.*' --exclude='expansions/ci' --exclude='expansions/README.md' \
+	--exclude='expansions/.*' --exclude='expansions/ci' --exclude='expansions/*rerelease*' --exclude='expansions/README.md' \
+	--exclude='expansions/unofficial-fossil.cdb' --exclude='expansions/release.cdb' --exclude='script/pre-release' \
 	--exclude=textures/Backup --exclude=puzzles \
 	Distribution/ $ASSETS
 
@@ -34,6 +35,10 @@ git diff -z --name-only --diff-filter=d $BASE_REF | xargs -0 -I {} \
 		--exclude='expansions/**' --exclude='script/**' \
 		--exclude=textures/Backup --exclude='puzzles/**' \
 		{} ../$UPDATES/
+	rsync -ar --exclude='.*' --exclude='*.sh' \
+		--exclude='ci' --exclude='*rerelease*' --exclude='README.md' \
+		--exclude='unofficial-fossil.cdb' --exclude='release.cdb' \
+		./expansions/ ../$UPDATES/expansions
 cd ..
 
 curl --retry 5 --connect-timeout 30 --location --remote-header-name -o WindBotIgnite-Resources.7z $LIBWINDBOT_RESOURCES

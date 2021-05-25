@@ -1467,11 +1467,6 @@ static inline void BuildProjectionMatrix(irr::core::matrix4& mProjection, irr::f
 }
 bool Game::MainLoop() {
 	irr::core::matrix4 mProjection;
-	auto RefreshHands = [&]() {
-		std::unique_lock<std::mutex> lk(gMutex);
-		if(dInfo.isInDuel)
-			dField.RefreshHandHitboxes();
-	};
 	camera = smgr->addCameraSceneNode(0);
 	BuildProjectionMatrix(mProjection, CAMERA_LEFT, CAMERA_RIGHT, CAMERA_BOTTOM, CAMERA_TOP, 1.0f, 100.0f);
 	camera->setProjectionMatrix(mProjection);
@@ -1493,7 +1488,7 @@ bool Game::MainLoop() {
 	int fps = 0;
 	bool was_connected = false;
 	bool update_prompted = false;
-	bool unzip_started = false;
+	bool update_checked = false;
 	if(!driver->queryFeature(irr::video::EVDF_TEXTURE_NPOT)) {
 		auto SetClamp = [](irr::video::SMaterialLayer layer[irr::video::MATERIAL_MAX_TEXTURES]) {
 			layer[0].TextureWrapU = irr::video::ETC_CLAMP_TO_EDGE;
@@ -1640,7 +1635,7 @@ bool Game::MainLoop() {
 			window_scale.X = (window_size.Width / 1024.0) / gGameConfig->dpi_scale;
 			window_scale.Y = (window_size.Height / 640.0) / gGameConfig->dpi_scale;
 			cardimagetextureloading = false;
-			RefreshHands();
+			should_refresh_hands = true;
 			OnResize();
 		}
 		frame_counter += (float)delta_time * 60.0f/1000.0f;
@@ -1655,6 +1650,8 @@ bool Game::MainLoop() {
 		atkdy = (float)sin(atkframe);
 		driver->beginScene(true, true, irr::video::SColor(0, 0, 0, 0));
 		gMutex.lock();
+		if(should_refresh_hands && dInfo.isInDuel)
+			dField.RefreshHandHitboxes();
 		if(dInfo.isInDuel) {
 			if(dInfo.isReplay)
 				discord.UpdatePresence(DiscordWrapper::REPLAY);
@@ -1787,9 +1784,16 @@ bool Game::MainLoop() {
 			PopupElement(wQuery);
 			show_changelog = false;
 		}
-		if(!unzip_started && gClientUpdater->UpdateDownloaded()) {
-			unzip_started = true;
-			gClientUpdater->StartUnzipper(Game::UpdateUnzipBar, mainGame);
+		if(!update_checked && gClientUpdater->UpdateDownloaded()) {
+			if(gClientUpdater->UpdateFailed()) {
+				update_checked = true;
+				HideElement(updateWindow);
+				stMessage->setText(gDataManager->GetSysString(1467).data());
+				PopupElement(wMessage);
+			} else {
+				update_checked = true;
+				gClientUpdater->StartUnzipper(Game::UpdateUnzipBar, mainGame);
+			}
 		}
 #ifdef __APPLE__
 		// Recent versions of macOS break OpenGL vsync while offscreen, resulting in
@@ -2214,8 +2218,8 @@ void Game::LoadServers() {
 				try {
 					ServerInfo tmp_server;
 					tmp_server.name = BufferIO::DecodeUTF8(obj.at("name").get_ref<std::string&>());
-					tmp_server.address = BufferIO::DecodeUTF8(obj.at("address").get_ref<std::string&>());
-					tmp_server.roomaddress = BufferIO::DecodeUTF8(obj.at("roomaddress").get_ref<std::string&>());
+					tmp_server.address = obj.at("address").get<std::string>();
+					tmp_server.roomaddress = obj.at("roomaddress").get<std::string>();
 					tmp_server.roomlistport = obj.at("roomlistport").get<int>();
 					tmp_server.duelport = obj.at("duelport").get<int>();
 					int i = serverChoice->addItem(tmp_server.name.data());
@@ -3206,7 +3210,7 @@ void Game::ValidateName(irr::gui::IGUIElement* obj) {
 	if(text.size() != wcslen(obj->getText()))
 		obj->setText(text.data());
 }
-std::wstring Game::ReadPuzzleMessage(const std::wstring& script_name) {
+std::wstring Game::ReadPuzzleMessage(epro::wstringview script_name) {
 	std::ifstream infile(Utils::ToPathString(script_name), std::ifstream::in);
 	std::string str;
 	std::string res = "";

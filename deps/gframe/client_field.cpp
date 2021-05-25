@@ -706,6 +706,7 @@ void ClientField::RefreshAllCards() {
 		refresh(skills[p]);
 	}
 	refreshloc(overlay_cards);
+	mainGame->should_refresh_hands = true;
 }
 void ClientField::GetChainDrawCoordinates(uint8_t controler, uint8_t location, uint32_t sequence, irr::core::vector3df* t) {
 	int field = (mainGame->dInfo.duel_field == 3 || mainGame->dInfo.duel_field == 5) ? 0 : 1;
@@ -1296,7 +1297,7 @@ void ClientField::UpdateDeclarableList(bool refresh) {
 	for(const auto& card : gDataManager->cards) {
 		const auto strings = card.second.GetStrings();
 		const auto& name = strings->uppercase_name;
-		if(Utils::ContainsSubstring(name, pname)) {
+		if(name.find(pname) != std::wstring::npos) {
 			if(is_declarable(&card.second._data, declare_opcodes)) {
 				if(pname == name) { //exact match
 					mainGame->lstANCard->insertItem(0, strings->name.data(), -1);

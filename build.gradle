@@ -23,8 +23,8 @@ android {
 	compileSdkVersion 28
 
 	defaultConfig {
-		versionCode 9
-		versionName '39.0.3 V7.22'
+		versionCode 10
+		versionName '39.1.0 V7.3'
 		minSdkVersion 16
 		targetSdkVersion 28
 		applicationId 'perfectdicky.edokcg'

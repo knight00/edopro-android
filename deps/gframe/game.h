@@ -220,7 +220,7 @@ public:
 	void SetCentered(irr::gui::IGUIElement* elem);
 	void ValidateName(irr::gui::IGUIElement* box);
 	
-	std::wstring ReadPuzzleMessage(const std::wstring& script_name);
+	std::wstring ReadPuzzleMessage(epro::wstringview script_name);
 	OCG_Duel SetupDuel(OCG_DuelOptions opts);
 	epro::path_string FindScript(epro::path_stringview script_name, irr::io::IReadFile** retarchive = nullptr);
 	std::vector<char> LoadScript(epro::stringview script_name);
@@ -316,6 +316,7 @@ public:
 	std::wstring queued_msg;
 	std::wstring queued_caption;
 	bool should_reload_skin;
+	bool should_refresh_hands;
 	//GUI
 	irr::gui::IGUIEnvironment* env;
 	irr::gui::CGUITTFont* guiFont;
