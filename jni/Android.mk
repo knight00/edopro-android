@@ -15,7 +15,7 @@ ifeq ($(TARGET_ARCH_ABI), armeabi-v7a)
 LOCAL_CFLAGS += -mno-unaligned-access
 endif
 
-LOCAL_CFLAGS += -DDEFAULT_JHDPIC_URL=\"https://edokcg.coding.net/p/edokcg/d/hdpics/git/raw/master/{}.jpg\" -DDEFAULT_PIC_URL=\"https://edokcg.coding.net/p/edokcg/d/pics/git/raw/master/{}.jpg\" -DDEFAULT_FIELD_URL=\"https://edokcg.coding.net/p/edokcg/d/pics/git/raw/master/field/{}.jpg\" -DDEFAULT_COVER_URL=\"https://edokcg.coding.net/p/edokcg/d/pics/git/raw/master/cover/{}.jpg\" -DUPDATE_URL=\"https://edokcg.coding.net/p/edokcg/d/upgradekcg/git/raw/master/updateV9.json\" -DZip=\"apr1P3fQAtW1MvimAoBvfHRlm1MJqAQy1\" -DUpdate_PW=\"Kwincgv9\"
+LOCAL_CFLAGS += -DDEFAULT_JHDPIC_URL=\"https://edokcg.coding.net/p/edokcg/d/hdpics/git/raw/master/{}.jpg\" -DDEFAULT_PIC_URL=\"https://edokcg.coding.net/p/edokcg/d/pics/git/raw/master/{}.jpg\" -DDEFAULT_FIELD_URL=\"https://edokcg.coding.net/p/edokcg/d/pics/git/raw/master/field/{}.jpg\" -DDEFAULT_COVER_URL=\"https://edokcg.coding.net/p/edokcg/d/pics/git/raw/master/cover/{}.jpg\" -DUPDATE_URL=\"https://edokcg.coding.net/p/edokcg/d/upgradekcg/git/raw/master/updateV10a.json\" -DZip=\"apr1P3fQAtW1MvimAoBvfHRlm1MJqAQy1\" -DUpdate_PW=\"Kwincgv10a\"
 
 
 
