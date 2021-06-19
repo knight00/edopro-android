@@ -24,7 +24,7 @@ android {
 
 	defaultConfig {
 		versionCode 10
-		versionName '39.1.0 V7.3'
+		versionName '39.1.1 V7.3'
 		minSdkVersion 16
 		targetSdkVersion 28
 		applicationId 'perfectdicky.edokcg'

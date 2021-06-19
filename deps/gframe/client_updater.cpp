@@ -99,7 +99,7 @@ CURLcode curlPerform(const char* url, void* payload, void* payload2 = nullptr) {
 }
 
 static void Reboot() {
-	const auto path = ygo::Utils::GetExePath();
+	const auto& path = ygo::Utils::GetExePath();
 #ifdef _WIN32
 	STARTUPINFO si{ sizeof(si) };
 	PROCESS_INFORMATION pi{};
@@ -142,6 +142,7 @@ bool CheckMd5(std::fstream& instream, uint8_t md5[MD5_DIGEST_LENGTH]) {
 	return memcmp(result, md5, MD5_DIGEST_LENGTH) == 0;
 }
 
+#ifndef __ANDROID__
 static inline void DeleteOld() {
 #if defined(_WIN32) || (defined(__linux__) && !defined(__ANDROID__))
 	ygo::Utils::FileDelete(fmt::format(EPRO_TEXT("{}.old"), ygo::Utils::GetExePath()));
@@ -181,7 +182,9 @@ static inline void FreeLock(ygo::ClientUpdater::lock_type lock) {
 #endif
 	ygo::Utils::FileDelete(LOCKFILE);
 }
-#endif
+#endif //__ANDROID__
+#endif //UPDATE_URL
+
 namespace ygo {
 
 void ClientUpdater::StartUnzipper(unzip_callback callback, void* payload, const epro::path_string& src) {
@@ -216,10 +219,10 @@ bool ClientUpdater::StartUpdate(update_callback callback, void* payload, const e
 void ClientUpdater::Unzip(epro::path_string src, void* payload, unzip_callback callback) {
 	Utils::SetThreadName("Unzip");
 #if defined(_WIN32) || (defined(__linux__) && !defined(__ANDROID__))
-	const auto path = ygo::Utils::GetExePath();
+	const auto& path = ygo::Utils::GetExePath();
 	ygo::Utils::FileMove(path, fmt::format(EPRO_TEXT("{}.old"), path));
 #if !defined(__linux__)
-	const auto corepath = ygo::Utils::GetCorePath();
+	const auto& corepath = ygo::Utils::GetCorePath();
 	ygo::Utils::FileMove(corepath, fmt::format(EPRO_TEXT("{}.old"), corepath));
 #endif
 #endif
@@ -329,13 +332,13 @@ void ClientUpdater::CheckUpdate() {
 #endif
 
 ClientUpdater::ClientUpdater() {
-#ifdef UPDATE_URL
+#if defined(UPDATE_URL) && !defined(__ANDROID__)
 	Lock = GetLock();
 #endif
 }
 
 ClientUpdater::~ClientUpdater() {
-#ifdef UPDATE_URL
+#if defined(UPDATE_URL) && !defined(__ANDROID__)
 	FreeLock(Lock);
 #endif
 }
