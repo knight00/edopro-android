@@ -162,7 +162,7 @@ public class MainActivity extends Activity {
 				if(dest_dir.startsWith("/storage/emulated/0"))
 					setWorkingDir(dest_dir);
 				else {
-					File[] paths = getExternalFilesDirs("EDOPro");
+					File[] paths = getExternalFilesDirs("EDOPro-KCG");
 					String[] dirs = dest_dir.split("/");
 					boolean found = false;
 					if(dirs.length>2){
@@ -256,7 +256,7 @@ public class MainActivity extends Activity {
 	}
 
 	public void getDefaultPath(){
-		final File path = new File(Environment.getExternalStorageDirectory() + "/EDOPro");
+		final File path = new File(Environment.getExternalStorageDirectory() + "/EDOPro-KCG");
 		final String dest_dir = path.getAbsolutePath();
 		if(!"".equals(dest_dir)) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -343,27 +343,36 @@ public class MainActivity extends Activity {
 		}
 		copyCertificate();
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage(R.string.assets_prompt).setNegativeButton("No", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int id) {
-				try {
-					File file = new File(getFilesDir(),"assets_copied");
-					if(!file.createNewFile()){
-						Log.e("EDOPro", "error when creating assets_copied file");
-					} else {
-						FileWriter wr = (new FileWriter(file));
-						wr.write(""+BuildConfig.VERSION_CODE);
-						wr.flush();
-					}
-				} catch (Exception e){
-					Log.e("EDOPro", "error when creating assets_copied file: " + e.getMessage());
+		///kdiy///////////
+		// builder.setMessage(R.string.assets_prompt).setNegativeButton("No", new DialogInterface.OnClickListener() {
+		// AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		// 	builder.setMessage(R.string.assets_prompt).setNegativeButton("No", new DialogInterface.OnClickListener() {	
+		// 	public void onClick(DialogInterface dialog, int id) {
+		// 		try {
+		// 			File file = new File(getFilesDir(),"assets_copied");
+		// 			if(!file.createNewFile()){
+		// 				Log.e("EDOPro", "error when creating assets_copied file");
+		// 			} else {
+		// 				FileWriter wr = (new FileWriter(file));
+		// 				wr.write(""+BuildConfig.VERSION_CODE);
+		// 				wr.flush();
+		// 			}
+		// 		} catch (Exception e){
+		// 			Log.e("EDOPro", "error when creating assets_copied file: " + e.getMessage());
+		// 		}
+		// 		next();
+		// 	}
+		// }).setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+		// 	public void onClick(DialogInterface dialog, int id) {
+		//  		copyAssets(working_dir, false);
+		// 	}
+		// }).setCancelable(false).show();
+		builder.setMessage(R.string.assets_prompt).setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int id) {
+					 copyAssets(working_dir, false);
 				}
-				next();
-			}
-		}).setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int id) {
-				copyAssets(working_dir, false);
-			}
-		}).setCancelable(false).show();
+			}).setCancelable(false).show();
+		///kdiy///////////
 	}
 
 	public void copyCertificate(){

@@ -59,6 +59,9 @@ public class EpNativeActivity extends NativeActivity {
 		filter.addAction("OPEN_SCRIPT");
 		filter.addAction("SHOW_ERROR_WINDOW");
 		filter.addAction("SHARE_FILE");
+		/////////kdiy///////////////
+		// filter.addAction("PLAY_ANIME");
+		/////////kdiy///////////////
 		registerReceiver(myReceiver, filter);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 	}
@@ -159,7 +162,18 @@ public class EpNativeActivity extends NativeActivity {
 				fileIntent.putExtra(Intent.EXTRA_STREAM, uri);
 				fileIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				startActivity(fileIntent);
-			}
+			/////////kdiy///////////////	
+		    // } else if ("PLAY_ANIME".equals(action)) {
+			// 	String path = intent.getStringExtra("args");
+			// 	Log.i("EDOPro", "opening anime from: "+path);
+			// 	Intent fileIntent = new Intent(Intent.ACTION_VIEW);
+			// 	Uri uri = FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", new File(path));
+			// 	fileIntent.setDataAndType(uri, "video/*");
+			// 	fileIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			// 	fileIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+			// 	startActivity(fileIntent);
+			/////////kdiy///////////////
+	        }
 		}
 	};
 
@@ -245,6 +259,16 @@ public class EpNativeActivity extends NativeActivity {
 		intent.setAction("SHARE_FILE");
 		getApplicationContext().sendBroadcast(intent);
 	}
+
+	///kdiy////////
+	// @SuppressWarnings("unused")
+	// public void openAnime(String path) {
+	// 	Intent intent = new Intent();
+	// 	intent.putExtra("args", path);
+	// 	intent.setAction("PLAY_ANIME");
+	// 	getApplicationContext().sendBroadcast(intent);
+	// }
+	///kdiy////////
 
 	@SuppressWarnings("unused")
 	public float getDensity() {

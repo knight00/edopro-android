@@ -13,3 +13,7 @@ local.properties
 *.iml
 *.directory
 .DS_Store
+kcg.jks
+edopro.sh
+ndk-bundle/
+ndk-bundle.zip

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="preparing_media">Preparing media&#8230;</string>
-	<string name="not_granted">Required permission wasn\'t granted, Project Ignis: EDOPro can\'t run without it</string>
-	<string name="default_path">You chose a folder in an external storage, due to some android limitations, the game path will be set to: %s</string>
-	<string name="default_dir">Using %s as working directory</string>
-	<string name="default_dir_changeable">Using %s as working directory. Do you want to change it?</string>
-	<string name="keep_game_folder">Keep</string>
-	<string name="change_game_folder">Change</string>
-	<string name="assets_prompt">Copy internal assets?</string>
-	<string name="copying_update">Copying update assets</string>
-	<string name="no_matching">Couldn\'t find matching storage</string>
+	<string name="preparing_media">準備媒體&#8230;</string>
+	<string name="not_granted">沒有授予所需的權限，沒有它，EDOPro-KCG將無法運行</string>
+	<string name="default_path">您選擇了外部存儲中的文件夾，由於某些android的限制，遊戲路徑將設置為: %s</string>
+	<string name="default_dir">%s 作為工作目錄</string>
+	<string name="default_dir_changeable">%s 作為工作目錄。你想改變它嗎?</string>
+	<string name="keep_game_folder">保持</string>
+	<string name="change_game_folder">改變</string>
+	<string name="assets_prompt">複製資源?</string>
+	<string name="copying_update">複製更新</string>
+	<string name="no_matching">找不到匹配的存儲</string>
 </resources>
