@@ -866,7 +866,10 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 					}
 				}
 				if(count == announce_count) {
-					DuelClient::SetResponseI(rac);
+					if(mainGame->dInfo.legacy_race_size)
+						DuelClient::SetResponse<int32_t>(rac);
+					else
+						DuelClient::SetResponse<uint64_t>(rac);
 					mainGame->HideElement(mainGame->wANRace, true);
 				}
 				break;
@@ -1123,8 +1126,11 @@ bool ClientField::OnEvent(const irr::SEvent& event) {
 				break;
 			if(mainGame->wCardDisplay->isVisible())
 				break;
-			irr::core::vector2di pos = mainGame->Resize(event.MouseInput.X, event.MouseInput.Y, true);
 			irr::core::vector2di mousepos(event.MouseInput.X, event.MouseInput.Y);
+			irr::gui::IGUIElement* root = mainGame->env->getRootGUIElement();
+			if(root->getElementFromPoint(mousepos) != root)
+				break;
+			irr::core::vector2di pos = mainGame->Resize(event.MouseInput.X, event.MouseInput.Y, true);
 			if(pos.X < 300)
 				break;
 			GetHoverField(mousepos);
@@ -2063,7 +2069,7 @@ bool ClientField::OnCommonEvent(const irr::SEvent& event, bool& stopPropagation)
 				break;
 			}
 			case CHECKBOX_NATIVE_MOUSE: {
-				gGameConfig->native_keyboard = static_cast<irr::gui::IGUICheckBox*>(event.GUIEvent.Caller)->isChecked();
+				gGameConfig->native_mouse = static_cast<irr::gui::IGUICheckBox*>(event.GUIEvent.Caller)->isChecked();
 				break;
 			}
 #endif
@@ -2199,10 +2205,11 @@ bool ClientField::OnCommonEvent(const irr::SEvent& event, bool& stopPropagation)
 		}
 		case irr::KEY_KEY_O: {
 			if (event.KeyInput.Control && !event.KeyInput.PressedDown) {
-				if (mainGame->gSettings.window->isVisible())
-					mainGame->HideElement(mainGame->gSettings.window);
+				auto window = mainGame->gSettings.window;
+				if(window->isVisible())
+					mainGame->HideElement(window);
 				else
-					mainGame->PopupElement(mainGame->gSettings.window);
+					mainGame->PopupElement(window);
 			}
 			return true;
 		}
@@ -2434,7 +2441,11 @@ bool ClientField::OnCommonEvent(const irr::SEvent& event, bool& stopPropagation)
 			return false;
 		if(event.TouchInput.Event != irr::ETIE_LEFT_UP)
 			return false;
-		mainGame->PopupElement(mainGame->gSettings.window);
+		auto window = mainGame->gSettings.window;
+		if(window->isVisible())
+			mainGame->HideElement(window);
+		else
+			mainGame->PopupElement(window);
 		return true;
 	}
 #endif
