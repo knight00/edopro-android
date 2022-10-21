@@ -77,10 +77,11 @@ void Replay::EndRecord(size_t size) {
 	is_recording = false;
 }
 void Replay::SaveReplay(const epro::path_string& name) {
-	auto replay_file = fileopen(fmt::format(EPRO_TEXT("./replay/{}.yrpX"), name).data(), "wb");
+	auto replay_file = fileopen(epro::format(EPRO_TEXT("./replay/{}.yrpX"), name).data(), "wb");
 	if(replay_file == nullptr)
 		return;
-	fwrite(&pheader, 1, sizeof(pheader), replay_file);
+	auto header_len = (pheader.base.flag & REPLAY_EXTENDED_HEADER) ? sizeof(ExtendedReplayHeader) : sizeof(ReplayHeader);
+	fwrite(&pheader, 1, header_len, replay_file);
 	fwrite(comp_data.data(), 1, comp_data.size(), replay_file);
 	fclose(replay_file);
 }

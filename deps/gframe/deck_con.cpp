@@ -251,8 +251,8 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 			}
 			case BUTTON_CLEAR_DECK: {
 				if(gGameConfig->confirm_clear_deck) {
-					std::lock_guard<std::mutex> lock(mainGame->gMutex);
-					mainGame->stQMessage->setText(fmt::format(L"{}", gDataManager->GetSysString(2004)).data());
+					std::lock_guard<epro::mutex> lock(mainGame->gMutex);
+					mainGame->stQMessage->setText(epro::format(L"{}", gDataManager->GetSysString(2004)).data());
 					mainGame->PopupElement(mainGame->wQuery);
 					prev_operation = id;
 					break;
@@ -314,8 +314,8 @@ bool DeckBuilder::OnEvent(const irr::SEvent& event) {
 				int sel = mainGame->cbDBDecks->getSelected();
 				if(sel == -1)
 					break;
-				std::lock_guard<std::mutex> lock(mainGame->gMutex);
-				mainGame->stQMessage->setText(fmt::format(L"{}\n{}", mainGame->cbDBDecks->getItem(sel), gDataManager->GetSysString(1337)).data());
+				std::lock_guard<epro::mutex> lock(mainGame->gMutex);
+				mainGame->stQMessage->setText(epro::format(L"{}\n{}", mainGame->cbDBDecks->getItem(sel), gDataManager->GetSysString(1337)).data());
 				mainGame->PopupElement(mainGame->wQuery);
 				prev_operation = id;
 				break;
@@ -1355,7 +1355,7 @@ void DeckBuilder::RefreshLimitationStatus() {
 	main_spell_count = DeckManager::TypeCount(current_deck.main, TYPE_SPELL);
 	main_trap_count = DeckManager::TypeCount(current_deck.main, TYPE_TRAP);
 
-	extra_fusion_count = DeckManager::TypeCount(current_deck.extra, TYPE_MONSTER);
+	extra_fusion_count = DeckManager::TypeCount(current_deck.extra, TYPE_FUSION);
 	extra_xyz_count = DeckManager::TypeCount(current_deck.extra, TYPE_XYZ);
 	extra_synchro_count = DeckManager::TypeCount(current_deck.extra, TYPE_SYNCHRO);
 	extra_link_count = DeckManager::TypeCount(current_deck.extra, TYPE_LINK);

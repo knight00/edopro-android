@@ -127,12 +127,18 @@ inline void ThreadsStartup() {
 #ifdef _WIN32
 	const WORD wVersionRequested = MAKEWORD(2, 2);
 	WSADATA wsaData;
-	WSAStartup(wVersionRequested, &wsaData);
-	evthread_use_windows_threads();
+	auto wsaret = WSAStartup(wVersionRequested, &wsaData);
+	if(wsaret != 0)
+		throw std::runtime_error(epro::format("Failed to initialize WinSock ({})!", wsaret));
+	if(evthread_use_windows_threads() < 0)
+		throw std::runtime_error("Failed initialize libevent!");
 #else
-	evthread_use_pthreads();
+	if(evthread_use_pthreads() < 0)
+		throw std::runtime_error("Failed initialize libevent!");
 #endif
-	curl_global_init(CURL_GLOBAL_SSL);
+	auto res = curl_global_init(CURL_GLOBAL_SSL);
+	if(res != CURLE_OK)
+		throw std::runtime_error(epro::format("Curl error: ({}) {}", static_cast<std::underlying_type_t<CURLcode>>(res), curl_easy_strerror(res)));
 }
 inline void ThreadsCleanup() {
 	curl_global_cleanup();
@@ -168,7 +174,7 @@ int _tmain(int argc, epro::path_char* argv[]) {
 		const auto& workdir = args[LAUNCH_PARAM::WORK_DIR];
 		const epro::path_stringview dest = workdir.enabled ? workdir.argument : ygo::Utils::GetExeFolder();
 		if(!ygo::Utils::SetWorkingDirectory(dest)) {
-			const auto err = fmt::format("failed to change directory to: {} ({})",
+			const auto err = epro::format("failed to change directory to: {} ({})",
 										 ygo::Utils::ToUTF8IfNeeded(dest), ygo::Utils::GetLastErrorString());
 			ygo::ErrorLog(err);
 			fmt::print("{}\n", err);
@@ -176,8 +182,16 @@ int _tmain(int argc, epro::path_char* argv[]) {
 			return EXIT_FAILURE;
 		}
 	}
+	try {
+		ThreadsStartup();
+	} catch(const std::exception& e) {
+		epro::stringview text(e.what());
+		ygo::ErrorLog(text);
+		fmt::print("{}\n", text);
+		ygo::GUIUtils::ShowErrorWindow("Initialization fail", text);
+		return EXIT_FAILURE;
+	}
 	show_changelog = args[LAUNCH_PARAM::CHANGELOG].enabled;
-	ThreadsStartup();
 #ifndef _WIN32
 	setlocale(LC_CTYPE, "UTF-8");
 #endif //_WIN32
