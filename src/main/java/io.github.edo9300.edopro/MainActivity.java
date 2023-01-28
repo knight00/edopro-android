@@ -66,14 +66,14 @@ public class MainActivity extends Activity {
 			if (data != null) {
 				intent.setData(null);
 				try {
-					Log.e("Edopro", data.getPath());
+					Log.e("EDOPro-KCG", data.getPath());
 					String path = FileUtil.getFullPathFromTreeUri(data, this);
 					parameter.add(path);
-					Log.e("Edopro", "parsed path: " + parameter);
+					Log.e("EDOPro-KCG", "parsed path: " + parameter);
 				} catch (Exception e) {
 					String path = data.getPath();
 					parameter.add(path);
-					Log.e("Edopro", "It was already a path: " + data.getPath());
+					Log.e("EDOPro-KCG", "It was already a path: " + data.getPath());
 				}
 			}
 		}
@@ -138,7 +138,7 @@ public class MainActivity extends Activity {
 						wr.flush();
 					}
 				} catch (Exception e) {
-					Log.e("EDOPro", "error when creating assets_copied file: " + e.getMessage());
+					Log.e("EDOPro-KCG", "error when creating assets_copied file: " + e.getMessage());
 				}
 				next();
 				break;
@@ -151,14 +151,14 @@ public class MainActivity extends Activity {
 					return;
 				}
 				Uri uri = data.getData();
-				Log.i("EDOPro", "Result URI " + uri);
+				Log.i("EDOPro-KCG", "Result URI " + uri);
 				String dest_dir = FileUtil.getFullPathFromTreeUri(uri, this);
 				if (dest_dir == null) {
-					Log.e("EDOPro", "returned URI is null");
+					Log.e("EDOPro-KCG", "returned URI is null");
 					finish();
 					break;
 				}
-				Log.i("EDOPro", "Parsed result URI " + dest_dir);
+				Log.i("EDOPro-KCG", "Parsed result URI " + dest_dir);
 				if (dest_dir.startsWith("/storage/emulated/0"))
 					setWorkingDir(dest_dir);
 				else {
@@ -168,9 +168,9 @@ public class MainActivity extends Activity {
 					if (dirs.length > 2) {
 						String storage = dirs[2];
 						for (int i = 0; i < paths.length; i++) {
-							Log.i("EDOPro", "Path " + i + " is: " + paths[i]);
+							Log.i("EDOPro-KCG", "Path " + i + " is: " + paths[i]);
 							if (storage.equals(paths[i].getAbsolutePath().split("/")[2])) {
-								Log.i("EDOPro", "path matching with " + dest_dir + " is: " + paths[i].getAbsolutePath());
+								Log.i("EDOPro-KCG", "path matching with " + dest_dir + " is: " + paths[i].getAbsolutePath());
 								dest_dir = paths[i].getAbsolutePath();
 								if (!paths[i].exists()) {
 									paths[i].mkdirs();
@@ -195,7 +195,7 @@ public class MainActivity extends Activity {
 						alert.show();
 					} else {
 						Toast.makeText(this, getResources().getString(R.string.no_matching), Toast.LENGTH_LONG).show();
-						Log.e("EDOPro", "couldn't find matching storage");
+						Log.e("EDOPro-KCG", "couldn't find matching storage");
 						finish();
 					}
 				}
@@ -248,7 +248,7 @@ public class MainActivity extends Activity {
 					return;
 				}
 			} catch (IOException e) {
-				Log.e("EDOPro", "working directory file found but not read: " + e.getMessage());
+				Log.e("EDOPro-KCG", "working directory file found but not read: " + e.getMessage());
 			}
 		}
 		getDefaultPath();
@@ -310,7 +310,7 @@ public class MainActivity extends Activity {
 			myOutWriter.close();
 			fOut.close();
 		} catch (Exception e) {
-			Log.e("EDOPro", "cannot write to working directory file: " + e.getMessage());
+			Log.e("EDOPro-KCG", "cannot write to working directory file: " + e.getMessage());
 			finish();
 			return;
 		}
@@ -354,16 +354,22 @@ public class MainActivity extends Activity {
 						wr.flush();
 					}
 				} catch (Exception e) {
-					Log.e("EDOPro", "error when creating assets_copied file: " + e.getMessage());
+					Log.e("EDOPro-KCG", "error when creating assets_copied file: " + e.getMessage());
 				}
-			}).setCancelable(false).show();
+				next();
+			}
+		}).setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int id) {
+				copyAssets(working_dir, false);
+			}
+		}).setCancelable(false).show();
 	}
 
 	public void copyCertificate() {
 		try {
 			File certout = new File(getFilesDir(), "cacert.pem");
 			if (certout.exists()) {
-				Log.i("EDOPro", "Certificate file already copied");
+				Log.i("EDOPro-KCG", "Certificate file already copied");
 			} else {
 				InputStream certin = getAssets().open("cacert.pem");
 				try {
@@ -375,7 +381,7 @@ public class MainActivity extends Activity {
 					}
 					fOut.close();
 				} catch (Exception e) {
-					Log.e("EDOPro", "cannot copy certificate file: " + e.getMessage());
+					Log.e("EDOPro-KCG", "cannot copy certificate file: " + e.getMessage());
 				}
 			}
 		} catch (IOException e) {
