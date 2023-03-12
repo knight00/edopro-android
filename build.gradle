@@ -23,8 +23,8 @@ android {
 	compileSdkVersion 28
 
 	defaultConfig {
-		versionCode 33
-		versionName 'KCG V15.2'
+		versionCode 38
+		versionName 'KCG V18'
 		minSdkVersion 16
 		targetSdkVersion 28
 		applicationId 'perfectdicky.edokcg'
