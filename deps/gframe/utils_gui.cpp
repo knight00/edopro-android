@@ -1,8 +1,6 @@
 #include "utils_gui.h"
 #include <irrlicht.h>
 #include <ICursorControl.h>
-#include <fmt/chrono.h>
-#include <fmt/format.h>
 #include "config.h"
 #include "utils.h"
 #include "game_config.h"
@@ -32,7 +30,7 @@ using CCursorControl = irr::CCursorControl;
 
 static inline bool try_guess_wayland() {
 	const char* env = getenv("XDG_SESSION_TYPE");
-	return env == nullptr || env != "x11"_sv;
+	return env == nullptr || env != "x11"sv;
 }
 #endif //EDOPRO_WINDOWS
 
@@ -46,6 +44,9 @@ static HWND GetWindowHandle(irr::video::IVideoDriver* driver) {
 		return static_cast<HWND>(driver->getExposedVideoData().D3D8.HWnd);
 #endif
 	case irr::video::EDT_DIRECT3D9:
+#if (IRRLICHT_VERSION_MAJOR==1 && IRRLICHT_VERSION_MINOR==9)
+	case irr::video::EDT_DIRECT3D9_ON_12:
+#endif
 		return static_cast<HWND>(driver->getExposedVideoData().D3D9.HWnd);
 	case irr::video::EDT_OPENGL:
 #if (IRRLICHT_VERSION_MAJOR==1 && IRRLICHT_VERSION_MINOR==9)
@@ -80,7 +81,7 @@ static inline irr::video::E_DRIVER_TYPE getDefaultDriver(irr::E_DEVICE_TYPE devi
 irr::IrrlichtDevice* GUIUtils::CreateDevice(GameConfig* configs) {
 	irr::SIrrlichtCreationParameters params{};
 	params.AntiAlias = configs->antialias;
-	params.Vsync = configs->vsync;
+	params.Vsync = (!EDOPRO_MACOS) && configs->vsync;
 #if (IRRLICHT_VERSION_MAJOR==1 && IRRLICHT_VERSION_MINOR==9)
 	// This correspond to the program's class name, used by window managers and
 	// desktop environments to group multiple instances with their desktop file
@@ -367,7 +368,7 @@ void GUIUtils::ShowErrorWindow(epro::stringview context, epro::stringview messag
 #elif EDOPRO_LINUX
 	const auto* context_cstr = context.data();
 	const auto* message_cstr = message.data();
-	const auto xmessage = fmt::format("{}\n{}", context, message);
+	const auto xmessage = epro::format("{}\n{}", context, message);
 	const auto xmessage_cstr = xmessage.data();
 	auto pid = vfork();
 	if(pid == 0) {

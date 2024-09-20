@@ -5,7 +5,7 @@ LOCAL_MODULE := EDOProClient
 
 LOCAL_CFLAGS := -DYGOPRO_USE_SFML -D_ANDROID -DYGOPRO_BUILD_DLL -Wno-deprecated-declarations -Wextra -Wpedantic -Wall\
 				-Wno-unused-parameter -Wno-unused-lambda-capture -Wno-missing-braces -Wno-unused-function\
-				-Wno-missing-field-initializers -Wno-main
+				-Wno-missing-field-initializers -Wno-inconsistent-missing-override
 
 ifeq ($(APP_OPTIM),debug)
 LOCAL_CFLAGS += -g -D_DEBUG
@@ -16,6 +16,10 @@ endif
 
 ifeq ($(TARGET_ARCH_ABI), armeabi-v7a)
 LOCAL_CFLAGS += -mno-unaligned-access
+endif
+
+ifeq ($(TARGET_ARCH_ABI), arm64-v8a)
+LOCAL_LDFLAGS += "-Wl,-z,max-page-size=16384"
 endif
 
 ifneq ($(PICS_URL),)
@@ -82,6 +86,7 @@ LOCAL_SRC_FILES := $(GFRAME_PATH)/Android/COSAndroidOperator.cpp \
 				   $(GFRAME_PATH)/dllinterface.cpp \
 				   $(GFRAME_PATH)/drawing.cpp \
 				   $(GFRAME_PATH)/duelclient.cpp \
+				   $(GFRAME_PATH)/edopro_main.cpp \
 				   $(GFRAME_PATH)/event_handler.cpp \
 				   $(GFRAME_PATH)/game.cpp \
 				   $(GFRAME_PATH)/game_config.cpp \
@@ -97,6 +102,7 @@ LOCAL_SRC_FILES := $(GFRAME_PATH)/Android/COSAndroidOperator.cpp \
 				   $(GFRAME_PATH)/netserver.cpp \
 				   $(GFRAME_PATH)/old_replay_mode.cpp \
 				   $(GFRAME_PATH)/replay_mode.cpp \
+				   $(GFRAME_PATH)/repo_cloner.cpp \
 				   $(GFRAME_PATH)/repo_manager.cpp \
 				   $(GFRAME_PATH)/replay.cpp \
 				   $(GFRAME_PATH)/server_lobby.cpp \

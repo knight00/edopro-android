@@ -4,7 +4,7 @@ if _ACTION=="xcode4" then
 end
 local ygopro_config=function(static_core)
 	kind "WindowedApp"
-	cppdialect "C++14"
+	cppdialect "C++17"
 	rtti "Off"
 	files { "**.cpp", "**.cc", "**.c", "**.h", "**.hpp" }
 	excludes { "lzma/**", "sound_sdlmixer.*", "sound_irrklang.*", "irrklang_dynamic_loader.*", "sound_sfml.*", "sfAudio/**", "Android/**" }
@@ -153,7 +153,7 @@ local ygopro_config=function(static_core)
 		links { "ssl", "crypto" }
 		if os.istarget("macosx") then
 			files { "*.m", "*.mm" }
-			links { "ldap", "Cocoa.framework", "IOKit.framework", "OpenGL.framework", "Security.framework" }
+			links { "ldap", "Cocoa.framework", "IOKit.framework", "OpenGL.framework", "Security.framework", "SystemConfiguration.framework" }
 		else
 			files { "iOS/**" }
 			links { "UIKit.framework", "CoreMotion.framework", "OpenGLES.framework", "Foundation.framework", "QuartzCore.framework" }
@@ -222,7 +222,7 @@ local ygopro_config=function(static_core)
 		links { "pthread" }
 
 	filter "system:windows"
-		links { "wbemuuid", "opengl32", "ws2_32", "winmm", "gdi32", "kernel32", "user32", "imm32", "wldap32", "crypt32", "advapi32", "rpcrt4", "ole32", "OleAut32", "uuid", "winhttp" }
+		links { "wbemuuid", "opengl32", "ws2_32", "winmm", "gdi32", "kernel32", "user32", "imm32", "wldap32", "crypt32", "advapi32", "rpcrt4", "ole32", "OleAut32", "uuid", "winhttp", "Secur32" }
 		if not _OPTIONS["oldwindows"] then
 			links "Iphlpapi"
 		end

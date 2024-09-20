@@ -1,7 +1,6 @@
 #ifndef GENERIC_DUEL_H
 #define GENERIC_DUEL_H
 
-#include <functional>
 #include <cstdint>
 #include <set>
 #include <type_traits>
@@ -12,28 +11,28 @@
 
 namespace ygo {
 
-class GenericDuel: public DuelMode {
+class GenericDuel final : public DuelMode {
 public:
 	GenericDuel(int team1 = 1, int team2 = 1, bool relay = false, int best_of = 0);
-	virtual ~GenericDuel();
-	virtual void Chat(DuelPlayer* dp, void* pdata, int len);
-	virtual void JoinGame(DuelPlayer* dp, CTOS_JoinGame* pkt, bool is_creator);
-	virtual void LeaveGame(DuelPlayer* dp);
-	virtual void ToDuelist(DuelPlayer* dp);
-	virtual void ToObserver(DuelPlayer* dp);
-	virtual void PlayerReady(DuelPlayer* dp, bool ready);
-	virtual void PlayerKick(DuelPlayer* dp, uint8_t pos);
-	virtual void UpdateDeck(DuelPlayer* dp, void* pdata, uint32_t len);
-	virtual void StartDuel(DuelPlayer* dp);
-	virtual void HandResult(DuelPlayer* dp, uint8_t res);
-	virtual void RematchResult(DuelPlayer* dp, uint8_t rematch);
-	virtual void TPResult(DuelPlayer* dp, uint8_t tp);
-	virtual void Process();
-	virtual void Surrender(DuelPlayer* dp);
-	virtual int Analyze(CoreUtils::Packet packet);
-	virtual void GetResponse(DuelPlayer* dp, void* pdata, uint32_t len);
-	virtual void TimeConfirm(DuelPlayer* dp);
-	virtual void EndDuel();
+	~GenericDuel() override;
+	void Chat(DuelPlayer* dp, void* pdata, int len) override;
+	void JoinGame(DuelPlayer* dp, CTOS_JoinGame* pkt, bool is_creator) override;
+	void LeaveGame(DuelPlayer* dp) override;
+	void ToDuelist(DuelPlayer* dp) override;
+	void ToObserver(DuelPlayer* dp) override;
+	void PlayerReady(DuelPlayer* dp, bool ready) override;
+	void PlayerKick(DuelPlayer* dp, uint8_t pos) override;
+	void UpdateDeck(DuelPlayer* dp, void* pdata, uint32_t len) override;
+	void StartDuel(DuelPlayer* dp) override;
+	void HandResult(DuelPlayer* dp, uint8_t res) override;
+	void RematchResult(DuelPlayer* dp, uint8_t rematch) override;
+	void TPResult(DuelPlayer* dp, uint8_t tp) override;
+	void Process() override;
+	void Surrender(DuelPlayer* dp) override;
+	int Analyze(CoreUtils::Packet packet) override;
+	void GetResponse(DuelPlayer* dp, void* pdata, uint32_t len) override;
+	void TimeConfirm(DuelPlayer* dp) override;
+	void EndDuel();
 
 	void BeforeParsing(const CoreUtils::Packet& packet, int& return_value, bool& record, bool& record_last);
 	void Sending(CoreUtils::Packet& packet, int& return_value, bool& record, bool& record_last);
@@ -47,12 +46,12 @@ public:
 	void RefreshExtra(uint8_t player, uint32_t flag = 0x381fff);
 	void RefreshLocation(uint8_t player, uint32_t flag, uint8_t location);
 	void RefreshSingle(uint8_t player, uint8_t location, uint8_t sequence, uint32_t flag = 0x3f81fff);
-	
+
 	static void GenericTimer(evutil_socket_t fd, short events, void* arg);
 
 	void PseudoRefreshDeck(uint8_t player, uint32_t flag = 0x1181fff);
 	static ReplayStream replay_stream;
-	
+
 protected:
 	std::vector<CoreUtils::Packet> packets_cache;
 	class duelist {
@@ -94,8 +93,18 @@ protected:
 				func(dlr);
 		}
 	}
+
+#if (!defined(_LIBCPP_VERSION) || _LIBCPP_VERSION >= 7000) && \
+	((defined(_MSVC_LANG) && _MSVC_LANG >= 201703L) || __cplusplus >= 201703L)
+	template<typename T, typename... Arg>
+	using FunctionResult = std::invoke_result_t<T, Arg...>;
+#else
+	template<typename T, typename... Arg>
+	using FunctionResult = std::result_of_t<T(Arg...)>;
+#endif
+
 	template<typename T, typename T2>
-	using EnableIf = std::enable_if_t<std::is_same<std::result_of_t<T(duelist&)>, T2>::value, int>;
+	using EnableIf = std::enable_if_t<std::is_same<FunctionResult<T, duelist&>, T2>::value, int>;
 	template<typename T, EnableIf<T, void> = 0>
 	inline void IteratePlayers(T func) {
 		Iter(players.home, func);

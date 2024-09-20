@@ -3,7 +3,7 @@
 
 #include <cstdint>
 #include <string>
-#include <fmt/core.h>
+#include "fmt.h"
 #include "bufferio.h"
 #include "text_types.h"
 
@@ -55,12 +55,12 @@ std::basic_string<wchar_t> Address::format() const;
 template<typename T>
 struct fmt::formatter<epro::Address, T> {
 	template<typename ParseContext>
-	constexpr auto parse(ParseContext& ctx) { return ctx.begin(); }
+	constexpr auto parse(ParseContext& ctx) const { return ctx.begin(); }
 
 	template<typename FormatContext>
-	auto format(const epro::Address& address, FormatContext& ctx) {
+	auto format(const epro::Address& address, FormatContext& ctx) const {
 		static constexpr auto format_str = CHAR_T_STRINGVIEW(T, "{}");
-		return fmt::format_to(ctx.out(), format_str.data(), address.format<T>());
+		return format_to(ctx.out(), format_str, address.format<T>());
 	}
 };
 

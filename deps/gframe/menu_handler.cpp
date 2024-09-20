@@ -1,7 +1,6 @@
-#include <fmt/chrono.h>
+#include "config.h"
 #include "client_updater.h"
 #include "game_config.h"
-#include "config.h"
 #include "menu_handler.h"
 #include "netserver.h"
 #include "duelclient.h"
@@ -561,29 +560,43 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 			}
 			case BUTTON_YES: {
 				mainGame->HideElement(mainGame->wQuery);
+				switch(prev_operation) {
 #if EDOPRO_LINUX && (IRRLICHT_VERSION_MAJOR==1 && IRRLICHT_VERSION_MINOR==9)
-				if(prev_operation == ACTION_TRY_WAYLAND) {
+				case ACTION_TRY_WAYLAND: {
 					gGameConfig->useWayland = 1;
 					mainGame->SaveConfig();
 					Utils::Reboot();
+					break;
 				}
 #endif
-				if(prev_operation == BUTTON_DELETE_REPLAY) {
+				case BUTTON_DELETE_REPLAY: {
 					if(Replay::DeleteReplay(Utils::ToPathString(mainGame->lstReplayList->getListItem(prev_sel, true)))) {
 						mainGame->stReplayInfo->setText(L"");
 						mainGame->lstReplayList->refreshList();
 					}
-				} else if(prev_operation == BUTTON_DELETE_SINGLEPLAY) {
+					break;
+				}
+				case BUTTON_DELETE_SINGLEPLAY: {
 					if(Utils::FileDelete(Utils::ToPathString(mainGame->lstSinglePlayList->getListItem(prev_sel, true)))) {
 						mainGame->stSinglePlayInfo->setText(L"");
 						mainGame->lstSinglePlayList->refreshList();
 					}
-				} else if(prev_operation == ACTION_UPDATE_PROMPT) {
+					break;
+				}
+				case ACTION_UPDATE_PROMPT: {
 					gClientUpdater->StartUpdate(Game::UpdateDownloadBar, mainGame);
 					mainGame->HideElement(mainGame->wMainMenu);
 					mainGame->PopupElement(mainGame->updateWindow);
-				} else if (prev_operation == ACTION_SHOW_CHANGELOG) {
-					Utils::SystemOpen(EPRO_TEXT("https://github.com/edo9300/edopro/releases"));
+					break;
+				}
+				case ACTION_SHOW_CHANGELOG: {
+					Utils::SystemOpen(EPRO_TEXT("https://github.com/edo9300/edopro/releases"), Utils::OPEN_URL);
+					break;
+				}
+				case ACTION_ACKNOWLEDGE_HOST: {
+					DuelClient::JoinFromDiscord();
+					break;
+				}
 				}
 				prev_operation = 0;
 				prev_sel = -1;
@@ -651,8 +664,8 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 				if(sel == -1)
 					break;
 				const auto& selection = DuelClient::hosts[sel];
-				mainGame->ebJoinHost->setText(fmt::to_wstring(selection.address).data());
-				mainGame->ebJoinPort->setText(fmt::to_wstring(selection.port).data());
+				mainGame->ebJoinHost->setText(epro::to_wstring(selection.address).data());
+				mainGame->ebJoinPort->setText(epro::to_wstring(selection.port).data());
 				break;
 			}
 			case LISTBOX_REPLAY_LIST: {
@@ -952,12 +965,12 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 			switch (id) {
 			case COMBOBOX_DUEL_RULE: {
 				auto setDeckSizes = [&](const DeckSizes& size) {
-					mainGame->ebMainMin->setText(fmt::to_wstring<int>(size.main.min).data());
-					mainGame->ebMainMax->setText(fmt::to_wstring<int>(size.main.max).data());
-					mainGame->ebExtraMin->setText(fmt::to_wstring<int>(size.extra.min).data());
-					mainGame->ebExtraMax->setText(fmt::to_wstring<int>(size.extra.max).data());
-					mainGame->ebSideMin->setText(fmt::to_wstring<int>(size.side.min).data());
-					mainGame->ebSideMax->setText(fmt::to_wstring<int>(size.side.max).data());
+					mainGame->ebMainMin->setText(epro::to_wstring<int>(size.main.min).data());
+					mainGame->ebMainMax->setText(epro::to_wstring<int>(size.main.max).data());
+					mainGame->ebExtraMin->setText(epro::to_wstring<int>(size.extra.min).data());
+					mainGame->ebExtraMax->setText(epro::to_wstring<int>(size.extra.max).data());
+					mainGame->ebSideMin->setText(epro::to_wstring<int>(size.side.min).data());
+					mainGame->ebSideMax->setText(epro::to_wstring<int>(size.side.max).data());
 				};
 				static constexpr DeckSizes ocg_deck_sizes{ {40,60}, {0,15}, {0,15} };
 				static constexpr DeckSizes rush_deck_sizes{ {40,60}, {0,15}, {0,15} };
@@ -1082,7 +1095,7 @@ bool MenuHandler::OnEvent(const irr::SEvent& event) {
 		}
 		break;
 	}
-#if !EDOPRO_ANDROID
+#if !EDOPRO_ANDROID && !EDOPRO_IOS
 	case irr::EET_DROP_EVENT: {
 		static std::wstring to_open_file;
 		switch(event.DropEvent.DropType) {
