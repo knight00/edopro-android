@@ -10,11 +10,17 @@ LOCAL_CFLAGS := -DYGOPRO_USE_SFML -D_ANDROID -DYGOPRO_BUILD_DLL -Wno-deprecated-
 ifeq ($(APP_OPTIM),debug)
 LOCAL_CFLAGS += -g -D_DEBUG
 else
-LOCAL_CFLAGS += -O3 -flto
-LOCAL_LDFLAGS := -flto
+LOCAL_CFLAGS += -O3
+	ifneq ($(TARGET_ARCH_ABI),armeabi)
+		LOCAL_CFLAGS += -flto
+		LOCAL_LDFLAGS := -flto
+	endif
 endif
 
 ifeq ($(TARGET_ARCH_ABI), armeabi-v7a)
+LOCAL_CFLAGS += -mno-unaligned-access
+endif
+ifeq ($(TARGET_ARCH_ABI), armeabi)
 LOCAL_CFLAGS += -mno-unaligned-access
 endif
 
@@ -72,6 +78,8 @@ LOCAL_SRC_FILES := $(GFRAME_PATH)/Android/COSAndroidOperator.cpp \
 				   $(GFRAME_PATH)/CXMLRegistry/CXMLRegistry.cpp \
 				   $(GFRAME_PATH)/MD5/md5.c \
 				   $(GFRAME_PATH)/ResizeablePanel/ResizeablePanel.cpp \
+				   $(GFRAME_PATH)/SoundBackends/sound_threaded_backend.cpp \
+				   $(GFRAME_PATH)/SoundBackends/sfml/sound_sfml.cpp \
 				   $(GFRAME_PATH)/address.cpp \
 				   $(GFRAME_PATH)/client_card.cpp \
 				   $(GFRAME_PATH)/client_field.cpp \
@@ -109,8 +117,6 @@ LOCAL_SRC_FILES := $(GFRAME_PATH)/Android/COSAndroidOperator.cpp \
 				   $(GFRAME_PATH)/settings_window.cpp \
 				   $(GFRAME_PATH)/single_mode.cpp \
 				   $(GFRAME_PATH)/sound_manager.cpp \
-				   $(GFRAME_PATH)/sound_sfml.cpp \
-				   $(GFRAME_PATH)/sound_threaded_backend.cpp \
 				   $(GFRAME_PATH)/utils.cpp \
 				   $(GFRAME_PATH)/utils_gui.cpp \
 				   $(GFRAME_PATH)/windbot.cpp \
