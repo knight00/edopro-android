@@ -213,8 +213,9 @@ void Game::Initialize() {
 											L"\n"
 											L"Project Ignis:\n"
 											L"ahtelel, Cybercatman, Dragon3989, DyXel, edo9300, EerieCode,"
-											L"Gideon, Hatter, Icematoro, Larry126, LogicalNonsense, pyrQ, Sanct,"
+											L"Finn, Gideon, Hatter, Icematoro, Larry126, Naim, pyrQ, Sanct,"
 											L"senpaizuri, Steeldarkeagel, TheRazgriz, WolfOfWolves, Yamato, YoshiDuels\n"
+											L"\n"
 											L"Default background and icon: LogicalNonsense\n"
 											L"Default fields: Icematoro\n"
 											L"\n"
@@ -3451,6 +3452,8 @@ void Game::ReloadCBLimit() {
 	} else {
 		chkAnime->setEnabled(false);
 		cbLimit->addItem(gDataManager->GetSysString(1912).data(), DeckBuilder::LIMITATION_FILTER_LEGEND);
+		cbLimit->addItem(gDataManager->GetSysString(1266).data(), DeckBuilder::LIMITATION_FILTER_ILLEGAL);
+		cbLimit->addItem(gDataManager->GetSysString(1903).data(), DeckBuilder::LIMITATION_FILTER_PRERELEASE);
 		cbLimit->addItem(gDataManager->GetSysString(1310).data(), DeckBuilder::LIMITATION_FILTER_ALL);
 	}
 }
