@@ -5,7 +5,7 @@ buildscript {
 		jcenter()
 	}
 	dependencies {
-		classpath 'com.android.tools.build:gradle:7.4.2'
+		classpath 'com.android.tools.build:gradle:8.7.3'
 	}
 }
 
@@ -28,7 +28,7 @@ android {
 		minSdkVersion 16
 		targetSdkVersion 28
 		applicationId "io.github.edo9300.edopro"
-		manifestPlaceholders = [package: "io.github.edo9300.edopro", project: project.name]
+		manifestPlaceholders = [project: project.name]
 		ndk {
 			// Specifies the ABI configurations of your native
 			// libraries Gradle should build and package with your APK.
@@ -42,18 +42,17 @@ android {
 		}
 	}
 
-	lintOptions {
-		disable "OldTargetApi", "GoogleAppIndexingWarning"
-		abortOnError false
-	}
-
-	aaptOptions {
-		noCompress 'dll', "config"
-		ignoreAssetsPattern '!.svn:!.git:<dir>_*:!CVS:!thumbs.db:!picasa.ini:!*.scc:*~'
-	}
 
 	Properties props = new Properties()
 	namespace 'io.github.edo9300.edopro'
+	androidResources {
+		ignoreAssetsPattern '!.svn:!.git:<dir>_*:!CVS:!thumbs.db:!picasa.ini:!*.scc:*~'
+		noCompress 'dll', 'config'
+	}
+	lint {
+		abortOnError false
+		disable 'OldTargetApi', 'GoogleAppIndexingWarning'
+	}
 	props.load(new FileInputStream(file("local.properties")))
 
 	if (props.getProperty("keystore") != null) {
