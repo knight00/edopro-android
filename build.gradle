@@ -5,7 +5,7 @@ buildscript {
 		jcenter()
 	}
 	dependencies {
-		classpath 'com.android.tools.build:gradle:4.2.2'
+		classpath 'com.android.tools.build:gradle:7.4.2'
 	}
 }
 
@@ -20,7 +20,7 @@ allprojects {
 apply plugin: "com.android.application"
 
 android {
-	compileSdkVersion 28
+	compileSdk 33
 
 	defaultConfig {
 		versionCode 21
@@ -53,6 +53,7 @@ android {
 	}
 
 	Properties props = new Properties()
+	namespace 'io.github.edo9300.edopro'
 	props.load(new FileInputStream(file("local.properties")))
 
 	if (props.getProperty("keystore") != null) {
