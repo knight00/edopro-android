@@ -2,7 +2,6 @@ buildscript {
 	repositories {
 		mavenCentral()
 		google()
-		jcenter()
 	}
 	dependencies {
 		classpath 'com.android.tools.build:gradle:8.7.3'
@@ -13,14 +12,13 @@ allprojects {
 	repositories {
 		mavenCentral()
 		google()
-		jcenter()
 	}
 }
 
 apply plugin: "com.android.application"
 
 android {
-	compileSdk 33
+	compileSdk 35
 
 	defaultConfig {
 		versionCode 21
@@ -53,6 +51,9 @@ android {
 		abortOnError false
 		disable 'OldTargetApi', 'GoogleAppIndexingWarning'
 	}
+	buildFeatures {
+		buildConfig true
+	}
 	props.load(new FileInputStream(file("local.properties")))
 
 	if (props.getProperty("keystore") != null) {
@@ -73,13 +74,7 @@ android {
 	}
 }
 
-repositories {
-	flatDir {
-		dirs 'libs'
-	}
-}
-
 dependencies {
 	implementation 'com.android.support:appcompat-v7:28.0.0'
-	implementation(name: 'libWindbot', ext: 'aar')
+	implementation(files("libs/libWindbot.aar"))
 }
