@@ -20,7 +20,6 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -44,7 +43,7 @@ public class MainActivity extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Intent intent = getIntent();
+		var intent = getIntent();
 		if (!isTaskRoot()) {
 			if (intent.hasCategory(Intent.CATEGORY_LAUNCHER)
 					&& intent.getAction() != null
@@ -53,7 +52,7 @@ public class MainActivity extends Activity {
 				return;
 			}
 		}
-		parameter = new ArrayList<String>();
+		parameter = new ArrayList<>();
 		if (intent.getAction() != null
 				&& intent.getAction().equals(Intent.ACTION_VIEW)) {
 			Log.e("Edopro open file", "aa");
@@ -68,11 +67,11 @@ public class MainActivity extends Activity {
 				intent.setData(null);
 				try {
 					Log.e("Edopro", data.getPath());
-					String path = FileUtil.getFullPathFromTreeUri(data, this);
+					var path = FileUtil.getFullPathFromTreeUri(data, this);
 					parameter.add(path);
 					Log.e("Edopro", "parsed path: " + parameter);
 				} catch (Exception e) {
-					String path = data.getPath();
+					var path = data.getPath();
 					parameter.add(path);
 					Log.e("Edopro", "It was already a path: " + data.getPath());
 				}
@@ -89,18 +88,17 @@ public class MainActivity extends Activity {
 		final List<String> missingPermissions = new ArrayList<>();
 		// check required permission
 		for (final String permission : REQUIRED_SDK_PERMISSIONS) {
-			final int result = ContextCompat.checkSelfPermission(this, permission);
+			final var result = ContextCompat.checkSelfPermission(this, permission);
 			if (result != PackageManager.PERMISSION_GRANTED) {
 				missingPermissions.add(permission);
 			}
 		}
 		if (!missingPermissions.isEmpty()) {
 			// request permission
-			final String[] permissions = missingPermissions
-					.toArray(new String[0]);
+			final var permissions = missingPermissions.toArray(new String[0]);
 			ActivityCompat.requestPermissions(this, permissions, PERMISSIONS);
 		} else {
-			final int[] grantResults = new int[REQUIRED_SDK_PERMISSIONS.length];
+			final var grantResults = new int[REQUIRED_SDK_PERMISSIONS.length];
 			Arrays.fill(grantResults, PackageManager.PERMISSION_GRANTED);
 			onRequestPermissionsResult(PERMISSIONS, REQUIRED_SDK_PERMISSIONS,
 					grantResults);
@@ -132,9 +130,9 @@ public class MainActivity extends Activity {
 		switch (requestCode) {
 			case 1: {
 				try {
-					File file = new File(getFilesDir(), "assets_copied");
+					var file = new File(getFilesDir(), "assets_copied");
 					if (file.exists() || file.createNewFile()) {
-						FileWriter wr = (new FileWriter(file));
+						var wr = new FileWriter(file);
 						wr.write("" + BuildConfig.VERSION_CODE);
 						wr.flush();
 					}
@@ -151,9 +149,9 @@ public class MainActivity extends Activity {
 				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
 					return;
 				}
-				Uri uri = data.getData();
+				var uri = data.getData();
 				Log.i("EDOPro", "Result URI " + uri);
-				String dest_dir = FileUtil.getFullPathFromTreeUri(uri, this);
+				var dest_dir = FileUtil.getFullPathFromTreeUri(uri, this);
 				if (dest_dir == null) {
 					Log.e("EDOPro", "returned URI is null");
 					finish();
@@ -163,9 +161,9 @@ public class MainActivity extends Activity {
 				if (dest_dir.startsWith("/storage/emulated/0"))
 					setWorkingDir(dest_dir);
 				else {
-					File[] paths = getExternalFilesDirs("EDOPro");
-					String[] dirs = dest_dir.split("/");
-					boolean found = false;
+					var paths = getExternalFilesDirs("EDOPro");
+					var dirs = dest_dir.split("/");
+					var found = false;
 					if (dirs.length > 2) {
 						String storage = dirs[2];
 						for (int i = 0; i < paths.length; i++) {
@@ -183,17 +181,16 @@ public class MainActivity extends Activity {
 					}
 					if (found) {
 						Toast.makeText(this, String.format(getResources().getString(R.string.default_dir), dest_dir), Toast.LENGTH_LONG).show();
-						final String cbdir = dest_dir;
-						AlertDialog.Builder builder = new AlertDialog.Builder(this);
-						builder.setMessage(String.format(getResources().getString(R.string.default_path), dest_dir))
+						final var cbdir = dest_dir;
+						new AlertDialog.Builder(this)
+								.setMessage(String.format(getResources().getString(R.string.default_path), dest_dir))
 								.setCancelable(false)
 								.setPositiveButton("OK", new DialogInterface.OnClickListener() {
 									public void onClick(DialogInterface dialog, int id) {
 										setWorkingDir(cbdir);
 									}
-								});
-						AlertDialog alert = builder.create();
-						alert.show();
+								})
+								.create().show();
 					} else {
 						Toast.makeText(this, getResources().getString(R.string.no_matching), Toast.LENGTH_LONG).show();
 						Log.e("EDOPro", "couldn't find matching storage");
@@ -206,7 +203,7 @@ public class MainActivity extends Activity {
 	}
 
 	public void next() {
-		boolean use_windbot = true;
+		var use_windbot = true;
 		if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1){
 			use_windbot = false;
 		} else {
@@ -228,12 +225,12 @@ public class MainActivity extends Activity {
 			parameter.add(0, "-l");
 		parameter.add(0, working_directory + "/");
 		parameter.add(0, "-C");
-		Object[] array = parameter.toArray();
-		String[] strArr = new String[array.length];
+		var array = parameter.toArray();
+		var strArr = new String[array.length];
 		for (int i = 0; i < array.length; i++) {
 			strArr[i] = array[i].toString();
 		}
-		Intent intent = new Intent(this, EpNativeActivity.class);
+		var intent = new Intent(this, EpNativeActivity.class);
 		intent.putExtra("ARGUMENTS", strArr);
 		intent.putExtra("USE_WINDBOT", use_windbot);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -299,19 +296,16 @@ public class MainActivity extends Activity {
 
 	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 	public void chooseWorkingDir() {
-		Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-		i.addCategory(Intent.CATEGORY_DEFAULT);
+		var i = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
 		startActivityForResult(Intent.createChooser(i, "Choose directory"), 2);
 	}
 
 	public void setWorkingDir(String dest_dir) {
 		working_directory = dest_dir;
-		File file = new File(getFilesDir(), "working_dir");
+		var file = new File(getFilesDir(), "working_dir");
 		try {
-			FileOutputStream fOut = new FileOutputStream(file);
-			OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
-			myOutWriter.append(dest_dir);
-			myOutWriter.close();
+			var fOut = new FileOutputStream(file);
+			new OutputStreamWriter(fOut).append(dest_dir).close();
 			fOut.close();
 		} catch (Exception e) {
 			Log.e("EDOPro", "cannot write to working directory file: " + e.getMessage());
@@ -323,62 +317,60 @@ public class MainActivity extends Activity {
 
 	public void copyAssetsPrompt(final String working_dir) {
 		changelog = false;
-		File file = new File(getFilesDir(), "assets_copied");
+		var file = new File(getFilesDir(), "assets_copied");
 		if (file.exists()) {
 			try {
-				BufferedReader fileReader = new BufferedReader(new FileReader(file));
-				String line = fileReader.readLine();
+				var fileReader = new BufferedReader(new FileReader(file));
+				var line = fileReader.readLine();
 				int prevversion = Integer.parseInt(line);
 				if (prevversion < BuildConfig.VERSION_CODE) {
 					try {
 						copyCertificate();
-						PrintWriter pw = new PrintWriter(file);
-						pw.close();
+						//creates the empty assets_copied file
+						new PrintWriter(file).close();
 						Toast.makeText(this, getResources().getString(R.string.copying_update), Toast.LENGTH_LONG).show();
 						copyAssets(working_dir, true);
-					} catch (Exception e) {
+					} catch (Exception ignored) {
 					}
 				} else
 					next();
 				return;
-			} catch (Exception e) {
+			} catch (Exception ignored) {
 			}
 		}
 		copyCertificate();
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage(R.string.assets_prompt).setNegativeButton("No", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int id) {
-				try {
-					File file = new File(getFilesDir(), "assets_copied");
-					if (!file.createNewFile()) {
-						Log.e("EDOPro", "error when creating assets_copied file");
-					} else {
-						FileWriter wr = (new FileWriter(file));
-						wr.write("" + BuildConfig.VERSION_CODE);
-						wr.flush();
+		new AlertDialog.Builder(this)
+				.setMessage(R.string.assets_prompt)
+				.setNegativeButton("No", (dialog, id) -> {
+					try {
+						var file1 = new File(getFilesDir(), "assets_copied");
+						if (!file1.createNewFile()) {
+							Log.e("EDOPro", "error when creating assets_copied file");
+						} else {
+							var wr = (new FileWriter(file1));
+							wr.write("" + BuildConfig.VERSION_CODE);
+							wr.flush();
+						}
+					} catch (Exception e) {
+						Log.e("EDOPro", "error when creating assets_copied file: " + e.getMessage());
 					}
-				} catch (Exception e) {
-					Log.e("EDOPro", "error when creating assets_copied file: " + e.getMessage());
-				}
-				next();
-			}
-		}).setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int id) {
-				copyAssets(working_dir, false);
-			}
-		}).setCancelable(false).show();
+					next();
+				})
+				.setPositiveButton("Yes", (dialog, id) -> copyAssets(working_dir, false))
+				.setCancelable(false)
+				.show();
 	}
 
 	public void copyCertificate() {
 		try {
-			File certout = new File(getFilesDir(), "cacert.pem");
+			var certout = new File(getFilesDir(), "cacert.pem");
 			if (certout.exists()) {
 				Log.i("EDOPro", "Certificate file already copied");
 			} else {
-				InputStream certin = getAssets().open("cacert.pem");
+				var certin = getAssets().open("cacert.pem");
 				try {
-					FileOutputStream fOut = new FileOutputStream(certout);
-					byte[] buffer = new byte[1024];
+					var fOut = new FileOutputStream(certout);
+					var buffer = new byte[1024];
 					int length;
 					while ((length = certin.read(buffer)) > 0) {
 						fOut.write(buffer, 0, length);
@@ -396,7 +388,7 @@ public class MainActivity extends Activity {
 	public void copyAssets(String working_dir, boolean isUpdate) {
 		changelog = true;
 		Intent intent = new Intent(this, AssetCopy.class);
-		Bundle params = new Bundle();
+		var params = new Bundle();
 		params.putString("workingDir", working_dir);
 		params.putBoolean("isUpdate", isUpdate);
 		intent.putExtras(params);

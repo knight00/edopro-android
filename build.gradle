@@ -18,8 +18,13 @@ allprojects {
 apply plugin: "com.android.application"
 
 android {
-	lintOptions {
-		disable 'ExpiredTargetSdkVersion'
+	lint {
+		abortOnError false
+		disable 'OldTargetApi', 'GoogleAppIndexingWarning', 'ExpiredTargetSdkVersion'
+	}
+	compileOptions {
+		sourceCompatibility JavaVersion.VERSION_17
+		targetCompatibility JavaVersion.VERSION_17
 	}
 
 	compileSdk 35
@@ -32,8 +37,7 @@ android {
 		applicationId "io.github.edo9300.edopro"
 		manifestPlaceholders = [project: project.name]
 		ndk {
-			// Specifies the ABI configurations of your native
-			// libraries Gradle should build and package with your APK.
+			//noinspection ChromeOsAbiSupport
 			abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86'//, 'x86_64'
 		}
 	}
@@ -49,11 +53,7 @@ android {
 	namespace 'io.github.edo9300.edopro'
 	androidResources {
 		ignoreAssetsPattern '!.svn:!.git:<dir>_*:!CVS:!thumbs.db:!picasa.ini:!*.scc:*~'
-		noCompress 'dll', 'config'
-	}
-	lint {
-		abortOnError false
-		disable 'OldTargetApi', 'GoogleAppIndexingWarning'
+		noCompress += ['dll', 'config']
 	}
 	buildFeatures {
 		buildConfig true
@@ -79,6 +79,7 @@ android {
 }
 
 dependencies {
+	//noinspection GradleDependency
 	implementation 'androidx.appcompat:appcompat:1.6.1'
 	implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
 	implementation(files("libs/libWindbot.aar"))

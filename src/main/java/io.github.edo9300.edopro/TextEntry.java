@@ -14,13 +14,7 @@ public class TextEntry {
 		mTextInputWidget = new EditText(context);
 		mTextInputWidget.setMinWidth(300);
 		mTextInputWidget.setInputType(InputType.TYPE_CLASS_TEXT);
-
-		AlertDialog.Builder builder = new AlertDialog.Builder(context);
 		mTextInputWidget.setText(current);
-
-		builder.setView(mTextInputWidget);
-
-		builder.setOnCancelListener(dialog -> pushResult(mTextInputWidget.getText().toString(), false));
 
 		mTextInputWidget.setOnKeyListener((view, KeyCode, event) -> {
 			if (KeyCode == KeyEvent.KEYCODE_ENTER) {
@@ -30,7 +24,11 @@ public class TextEntry {
 			return false;
 		});
 
-		mTextInputDialog = builder.create();
+		mTextInputDialog = new AlertDialog.Builder(context)
+				.setView(mTextInputWidget)
+				.setOnCancelListener(dialog -> pushResult(mTextInputWidget.getText().toString(), false))
+				.create();
+
 		mTextInputDialog.show();
 	}
 

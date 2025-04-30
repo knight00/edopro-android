@@ -24,11 +24,9 @@ import android.view.WindowManager;
 import java.io.File;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
-import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.Collections;
 import java.util.LinkedList;
-import java.util.List;
 
 import libwindbot.windbot.WindBot;
 
@@ -60,10 +58,10 @@ public class EpNativeActivity extends NativeActivity {
 	@SuppressWarnings("deprecation")
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Bundle ex = getIntent().getExtras();
+		var ex = getIntent().getExtras();
 		assert ex != null;
 		use_windbot = ex.getBoolean("USE_WINDBOT", true);
-		IntentFilter filter = new IntentFilter();
+		var filter = new IntentFilter();
 		filter.addAction("RUN_WINDBOT");
 		filter.addAction("ATTACH_WINDBOT_DATABASE");
 		filter.addAction("INPUT_TEXT");
@@ -109,60 +107,58 @@ public class EpNativeActivity extends NativeActivity {
 	private final BroadcastReceiver myReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			String action = intent.getAction();
+			var action = intent.getAction();
 			if ("RUN_WINDBOT".equals(action)) {
-				String args = intent.getStringExtra("args");
+				var args = intent.getStringExtra("args");
 				Log.i("EDOProWindBotIgnite", "Launching WindBot Ignite with " + args + " as parameters.");
 				WindBot.runAndroid(args);
 			} else if ("ATTACH_WINDBOT_DATABASE".equals(action)) {
-				String args = intent.getStringExtra("args");
+				var args = intent.getStringExtra("args");
 				Log.i("EDOProWindBotIgnite", "Loading database: " + args + ".");
 				WindBot.addDatabase(args);
 			} else if ("INPUT_TEXT".equals(action)) {
 				new TextEntry().Show(EpNativeActivity.this, intent.getStringExtra("current"));
 			} else if ("MAKE_CHOICE".equals(action)) {
-				String[] parameters = intent.getStringArrayExtra("args");
-				AlertDialog.Builder builder = new AlertDialog.Builder(EpNativeActivity.this);
-				// Add the buttons
-				//builder.setCancelable(false);
-				builder.setItems(parameters, (dialog, id) -> putComboBoxResult(id));
-				builder.create().show();
+				var parameters = intent.getStringArrayExtra("args");
+				new AlertDialog.Builder(EpNativeActivity.this)
+						//.setCancelable(false)
+						.setItems(parameters, (dialog, id) -> putComboBoxResult(id))
+						.show();
 			} else if ("INSTALL_UPDATE".equals(action)) {
-				String path = intent.getStringExtra("args");
+				var path = intent.getStringExtra("args");
 				assert path != null;
 				Log.i("EDOProUpdater", "Installing update from: \"" + path + "\".");
-				Intent _intent = new Intent(Intent.ACTION_VIEW);
-				_intent.setDataAndType(FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", new File(path)), "application/vnd.android.package-archive");
-				_intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				_intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-				startActivity(_intent);
+				var updateInstallIntent = new Intent(Intent.ACTION_VIEW);
+				updateInstallIntent.setDataAndType(FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", new File(path)), "application/vnd.android.package-archive");
+				updateInstallIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+				updateInstallIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+				startActivity(updateInstallIntent);
 			} else if ("OPEN_SCRIPT".equals(action)) {
-				String path = intent.getStringExtra("args");
+				var path = intent.getStringExtra("args");
 				assert path != null;
 				Log.i("EDOPro", "opening script from: " + path);
-				Intent fileIntent = new Intent(Intent.ACTION_VIEW);
+				var fileIntent = new Intent(Intent.ACTION_VIEW);
 				Uri uri = FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", new File(path));
 				fileIntent.setDataAndType(uri, "text/*");
 				fileIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				fileIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
 				startActivity(fileIntent);
 			} else if ("SHOW_ERROR_WINDOW".equals(action)) {
-				String message_context = intent.getStringExtra("context");
-				String message = intent.getStringExtra("message");
+				var message_context = intent.getStringExtra("context");
+				var message = intent.getStringExtra("message");
 				Log.i("EDOPro", "Received show error dialog " + message_context + " " + message);
-				AlertDialog.Builder builder = new AlertDialog.Builder(EpNativeActivity.this);
-				builder.setTitle(message_context);
-				builder.setMessage(message);
-				builder.setPositiveButton("OK", (dialog, id) -> errorDialogReturn());
-				builder.setCancelable(false);
-				AlertDialog dialog = builder.create();
-				dialog.show();
+				new AlertDialog.Builder(EpNativeActivity.this)
+						.setTitle(message_context)
+						.setMessage(message)
+						.setPositiveButton("OK", (dialog, id) -> errorDialogReturn())
+						.setCancelable(false)
+						.show();
 			} else if ("SHARE_FILE".equals(action)) {
-				String path = intent.getStringExtra("args");
+				var path = intent.getStringExtra("args");
 				assert path != null;
 				Log.i("EDOPro", "sharing file from: " + path);
-				Intent fileIntent = new Intent(Intent.ACTION_SEND);
-				Uri uri = FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", new File(path));
+				var uri = FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", new File(path));
+				var fileIntent = new Intent(Intent.ACTION_SEND);
 				fileIntent.setType("text/plain");
 				fileIntent.putExtra(Intent.EXTRA_STREAM, uri);
 				fileIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -175,7 +171,7 @@ public class EpNativeActivity extends NativeActivity {
 	public void launchWindbot(String parameters) {
 		if (!use_windbot)
 			return;
-		Intent intent = new Intent();
+		var intent = new Intent();
 		intent.putExtra("args", parameters);
 		intent.setAction("RUN_WINDBOT");
 		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
@@ -185,7 +181,7 @@ public class EpNativeActivity extends NativeActivity {
 	public void addWindbotDatabase(String database) {
 		if (!use_windbot)
 			return;
-		Intent intent = new Intent();
+		var intent = new Intent();
 		intent.putExtra("args", database);
 		intent.setAction("ATTACH_WINDBOT_DATABASE");
 		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
@@ -193,7 +189,7 @@ public class EpNativeActivity extends NativeActivity {
 
 	@SuppressWarnings({"unused", "deprecation"})
 	public void showDialog(String current) {
-		Intent intent = new Intent();
+		var intent = new Intent();
 		intent.putExtra("current", current);
 		intent.setAction("INPUT_TEXT");
 		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
@@ -210,14 +206,14 @@ public class EpNativeActivity extends NativeActivity {
 	@SuppressWarnings({"unused", "deprecation"})
 	public void installUpdate(String path) {
 		try {
-			File file = new File(getFilesDir(), "should_copy_update");
+			var file = new File(getFilesDir(), "should_copy_update");
 			if (!file.createNewFile()) {
 				Log.e("EDOPro", "error when creating should_copy_update file:");
 			}
 		} catch (Exception e) {
 			Log.e("EDOPro", "error when creating should_copy_update file: " + e.getMessage());
 		}
-		Intent intent = new Intent();
+		var intent = new Intent();
 		intent.putExtra("args", path);
 		intent.setAction("INSTALL_UPDATE");
 		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
@@ -231,7 +227,7 @@ public class EpNativeActivity extends NativeActivity {
 
 	@SuppressWarnings({"unused", "deprecation"})
 	public void openFile(String path) {
-		Intent intent = new Intent();
+		var intent = new Intent();
 		intent.putExtra("args", path);
 		intent.setAction("OPEN_SCRIPT");
 		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
@@ -239,7 +235,7 @@ public class EpNativeActivity extends NativeActivity {
 
 	@SuppressWarnings({"unused", "deprecation"})
 	public void showErrorDialog(String context, String message) {
-		Intent intent = new Intent();
+		var intent = new Intent();
 		intent.putExtra("context", context);
 		intent.putExtra("message", message);
 		intent.setAction("SHOW_ERROR_WINDOW");
@@ -248,7 +244,7 @@ public class EpNativeActivity extends NativeActivity {
 
 	@SuppressWarnings({"unused", "deprecation"})
 	public void shareFile(String path) {
-		Intent intent = new Intent();
+		var intent = new Intent();
 		intent.putExtra("args", path);
 		intent.setAction("SHARE_FILE");
 		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
@@ -271,14 +267,12 @@ public class EpNativeActivity extends NativeActivity {
 
 	@SuppressWarnings("unused")
 	public byte[][] getLocalIpAddresses() {
-		List<byte[]> ret = new LinkedList<>();
+		var ret = new LinkedList<byte[]>();
 		try {
-			List<NetworkInterface> interfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
-			for (NetworkInterface intf : interfaces) {
+			for (var intf : Collections.list(NetworkInterface.getNetworkInterfaces())) {
 				if (!intf.isUp() || intf.isLoopback())
 					continue;
-				List<InetAddress> addrs = Collections.list(intf.getInetAddresses());
-				for (InetAddress addr : addrs) {
+				for (var addr : Collections.list(intf.getInetAddresses())) {
 					if (!(addr instanceof Inet4Address) && !(addr instanceof Inet6Address))
 						continue;
 					ret.add(addr.getAddress());
@@ -292,9 +286,8 @@ public class EpNativeActivity extends NativeActivity {
 	@SuppressWarnings("unused")
 	public void setClipboard(final String text) {
 		EpNativeActivity.this.runOnUiThread(() -> {
-			ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-			ClipData clip = ClipData.newPlainText("", text);
-			clipboard.setPrimaryClip(clip);
+			((ClipboardManager) getSystemService(CLIPBOARD_SERVICE))
+					.setPrimaryClip(ClipData.newPlainText("", text));
 		});
 	}
 
@@ -302,12 +295,12 @@ public class EpNativeActivity extends NativeActivity {
 		public String result = "";
 
 		public void run() {
-			ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+			var clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
 			if (!(clipboard.hasPrimaryClip()) || clipboard.getPrimaryClip() == null || (clipboard.getPrimaryClipDescription() == null)
 					|| !(clipboard.getPrimaryClipDescription().hasMimeType(MIMETYPE_TEXT_PLAIN))) {
 				result = "";
 			} else {
-				ClipData clip = clipboard.getPrimaryClip();
+				var clip = clipboard.getPrimaryClip();
 				result = clip.getItemAt(0).getText().toString();
 			}
 			synchronized (this) {
@@ -318,7 +311,7 @@ public class EpNativeActivity extends NativeActivity {
 
 	@SuppressWarnings("unused")
 	public String getClipboard() {
-		RunnableObject myRunnable = new RunnableObject();
+		var myRunnable = new RunnableObject();
 		EpNativeActivity.this.runOnUiThread(myRunnable);
 		try {
 			myRunnable.wait(); // unlocks myRunable while waiting
