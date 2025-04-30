@@ -20,7 +20,8 @@
 		android:roundIcon="@mipmap/ic_launcher_round"
 		android:label="${project}"
 		android:resizeableActivity="false"
-		android:isGame="true">
+		android:isGame="true"
+		android:appCategory="game">
 
 		<meta-data
 			android:name="android.max_aspect"
