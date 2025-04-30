@@ -31,6 +31,7 @@ jobs:
     - name: Set local.properties
       run: |
        echo "sdk.dir=$ANDROID_HOME" > local.properties
+       echo "org.gradle.jvmargs=-Xmx8192M" >> gradle.properties
     - name: Prepare assets
       run: |
        ./ci/touch-assets.sh
