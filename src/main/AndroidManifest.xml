@@ -19,6 +19,7 @@
 		android:icon="@mipmap/ic_launcher"
 		android:roundIcon="@mipmap/ic_launcher_round"
 		android:label="${project}"
+		android:preserveLegacyExternalStorage="true"
 		android:resizeableActivity="false"
 		android:isGame="true"
 		android:appCategory="game">
@@ -151,6 +152,7 @@
 		<!-- </activity> -->
 		<activity
 			android:name=".EpNativeActivity"
+			android:enableOnBackInvokedCallback="false"
 			android:excludeFromRecents="true"
 			android:configChanges="orientation|keyboard|keyboardHidden|navigation|screenSize|smallestScreenSize"
 			android:hardwareAccelerated="true"
@@ -167,6 +169,7 @@
 		</activity>
 		<activity
 			android:name=".AssetCopy"
+			android:enableOnBackInvokedCallback="false"
 			android:screenOrientation="sensorLandscape"
 			android:theme="@style/AppTheme"/>
 		<provider
