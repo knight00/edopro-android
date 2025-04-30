@@ -1,5 +1,7 @@
 package io.github.edo9300.edopro;
 
+import static android.content.ClipDescription.MIMETYPE_TEXT_PLAIN;
+
 import android.app.AlertDialog;
 import android.app.NativeActivity;
 import android.content.BroadcastReceiver;
@@ -11,15 +13,14 @@ import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-
-import androidx.core.content.FileProvider;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-
 import android.util.Log;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
+
+import androidx.core.content.FileProvider;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import java.io.File;
 import java.net.Inet4Address;
@@ -27,10 +28,9 @@ import java.net.Inet6Address;
 import java.net.NetworkInterface;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.Objects;
 
 import libwindbot.windbot.WindBot;
-
-import static android.content.ClipDescription.MIMETYPE_TEXT_PLAIN;
 
 public class EpNativeActivity extends NativeActivity {
 
@@ -58,8 +58,7 @@ public class EpNativeActivity extends NativeActivity {
 	@SuppressWarnings("deprecation")
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		var ex = getIntent().getExtras();
-		assert ex != null;
+		final var ex = Objects.requireNonNull(getIntent().getExtras());
 		use_windbot = ex.getBoolean("USE_WINDBOT", true);
 		var filter = new IntentFilter();
 		filter.addAction("RUN_WINDBOT");
@@ -107,62 +106,76 @@ public class EpNativeActivity extends NativeActivity {
 	private final BroadcastReceiver myReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			var action = intent.getAction();
-			if ("RUN_WINDBOT".equals(action)) {
-				var args = intent.getStringExtra("args");
-				Log.i("EDOProWindBotIgnite", "Launching WindBot Ignite with " + args + " as parameters.");
-				WindBot.runAndroid(args);
-			} else if ("ATTACH_WINDBOT_DATABASE".equals(action)) {
-				var args = intent.getStringExtra("args");
-				Log.i("EDOProWindBotIgnite", "Loading database: " + args + ".");
-				WindBot.addDatabase(args);
-			} else if ("INPUT_TEXT".equals(action)) {
-				new TextEntry().Show(EpNativeActivity.this, intent.getStringExtra("current"));
-			} else if ("MAKE_CHOICE".equals(action)) {
-				var parameters = intent.getStringArrayExtra("args");
-				new AlertDialog.Builder(EpNativeActivity.this)
-						//.setCancelable(false)
-						.setItems(parameters, (dialog, id) -> putComboBoxResult(id))
-						.show();
-			} else if ("INSTALL_UPDATE".equals(action)) {
-				var path = intent.getStringExtra("args");
-				assert path != null;
-				Log.i("EDOProUpdater", "Installing update from: \"" + path + "\".");
-				var updateInstallIntent = new Intent(Intent.ACTION_VIEW);
-				updateInstallIntent.setDataAndType(FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", new File(path)), "application/vnd.android.package-archive");
-				updateInstallIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				updateInstallIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-				startActivity(updateInstallIntent);
-			} else if ("OPEN_SCRIPT".equals(action)) {
-				var path = intent.getStringExtra("args");
-				assert path != null;
-				Log.i("EDOPro", "opening script from: " + path);
-				var fileIntent = new Intent(Intent.ACTION_VIEW);
-				Uri uri = FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", new File(path));
-				fileIntent.setDataAndType(uri, "text/*");
-				fileIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				fileIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
-				startActivity(fileIntent);
-			} else if ("SHOW_ERROR_WINDOW".equals(action)) {
-				var message_context = intent.getStringExtra("context");
-				var message = intent.getStringExtra("message");
-				Log.i("EDOPro", "Received show error dialog " + message_context + " " + message);
-				new AlertDialog.Builder(EpNativeActivity.this)
-						.setTitle(message_context)
-						.setMessage(message)
-						.setPositiveButton("OK", (dialog, id) -> errorDialogReturn())
-						.setCancelable(false)
-						.show();
-			} else if ("SHARE_FILE".equals(action)) {
-				var path = intent.getStringExtra("args");
-				assert path != null;
-				Log.i("EDOPro", "sharing file from: " + path);
-				var uri = FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", new File(path));
-				var fileIntent = new Intent(Intent.ACTION_SEND);
-				fileIntent.setType("text/plain");
-				fileIntent.putExtra(Intent.EXTRA_STREAM, uri);
-				fileIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				startActivity(fileIntent);
+			switch (Objects.requireNonNull(intent.getAction())) {
+				case "RUN_WINDBOT": {
+					final var args = intent.getStringExtra("args");
+					Log.i("EDOProWindBotIgnite", "Launching WindBot Ignite with " + args + " as parameters.");
+					WindBot.runAndroid(args);
+					break;
+				}
+				case "ATTACH_WINDBOT_DATABASE": {
+					final var args = intent.getStringExtra("args");
+					Log.i("EDOProWindBotIgnite", "Loading database: " + args + ".");
+					WindBot.addDatabase(args);
+					break;
+				}
+				case "INPUT_TEXT": {
+					new TextEntry().Show(EpNativeActivity.this, intent.getStringExtra("current"));
+					break;
+				}
+				case "MAKE_CHOICE": {
+					final var parameters = intent.getStringArrayExtra("args");
+					new AlertDialog.Builder(EpNativeActivity.this)
+							//.setCancelable(false)
+							.setItems(parameters, (dialog, id) -> putComboBoxResult(id))
+							.show();
+					break;
+				}
+				case "INSTALL_UPDATE": {
+					final var path = Objects.requireNonNull(intent.getStringExtra("args"));
+					Log.i("EDOProUpdater", "Installing update from: \"" + path + "\".");
+					final var uri = FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", new File(path));
+					var updateInstallIntent = new Intent(Intent.ACTION_VIEW);
+					updateInstallIntent.setDataAndType(uri, "application/vnd.android.package-archive");
+					updateInstallIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+					updateInstallIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+					startActivity(updateInstallIntent);
+					break;
+				}
+				case "OPEN_SCRIPT": {
+					final var path = Objects.requireNonNull(intent.getStringExtra("args"));
+					Log.i("EDOPro", "opening script from: " + path);
+					final var uri = FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", new File(path));
+					var fileIntent = new Intent(Intent.ACTION_VIEW);
+					fileIntent.setDataAndType(uri, "text/*");
+					fileIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+					fileIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+					startActivity(fileIntent);
+					break;
+				}
+				case "SHOW_ERROR_WINDOW": {
+					final var message_context = Objects.requireNonNull(intent.getStringExtra("context"));
+					final var message = Objects.requireNonNull(intent.getStringExtra("message"));
+					Log.i("EDOPro", "Received show error dialog " + message_context + " " + message);
+					new AlertDialog.Builder(EpNativeActivity.this)
+							.setTitle(message_context)
+							.setMessage(message)
+							.setPositiveButton("OK", (dialog, id) -> errorDialogReturn())
+							.setCancelable(false)
+							.show();
+					break;
+				}
+				case "SHARE_FILE": {
+					final var path = Objects.requireNonNull(intent.getStringExtra("args"));
+					Log.i("EDOPro", "sharing file from: " + path);
+					final var uri = FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", new File(path));
+					var fileIntent = new Intent(Intent.ACTION_SEND);
+					fileIntent.setType("text/plain");
+					fileIntent.putExtra(Intent.EXTRA_STREAM, uri);
+					fileIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+					startActivity(fileIntent);
+					break;
+				}
 			}
 		}
 	};
@@ -197,7 +210,7 @@ public class EpNativeActivity extends NativeActivity {
 
 	@SuppressWarnings({"unused", "deprecation"})
 	public void showComboBox(String[] parameters) {
-		Intent intent = new Intent();
+		var intent = new Intent();
 		intent.putExtra("args", parameters);
 		intent.setAction("MAKE_CHOICE");
 		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
