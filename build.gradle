@@ -76,5 +76,6 @@ android {
 
 dependencies {
 	implementation 'androidx.appcompat:appcompat:1.6.1'
+	implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
 	implementation(files("libs/libWindbot.aar"))
 }

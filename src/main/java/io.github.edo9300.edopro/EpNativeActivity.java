@@ -12,7 +12,10 @@ import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+
 import androidx.core.content.FileProvider;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 import android.util.Log;
 import android.view.InputDevice;
 import android.view.KeyEvent;
@@ -68,7 +71,7 @@ public class EpNativeActivity extends NativeActivity {
 		filter.addAction("OPEN_SCRIPT");
 		filter.addAction("SHOW_ERROR_WINDOW");
 		filter.addAction("SHARE_FILE");
-		registerReceiver(myReceiver, filter);
+		LocalBroadcastManager.getInstance(this).registerReceiver( myReceiver, filter);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 	}
 
@@ -115,7 +118,7 @@ public class EpNativeActivity extends NativeActivity {
 				Log.i("EDOProWindBotIgnite", "Loading database: " + args + ".");
 				WindBot.addDatabase(args);
 			} else if ("INPUT_TEXT".equals(action)) {
-				new TextEntry().Show(context, intent.getStringExtra("current"));
+				new TextEntry().Show(EpNativeActivity.this, intent.getStringExtra("current"));
 			} else if ("MAKE_CHOICE".equals(action)) {
 				String[] parameters = intent.getStringArrayExtra("args");
 				AlertDialog.Builder builder = new AlertDialog.Builder(EpNativeActivity.this);
@@ -179,7 +182,7 @@ public class EpNativeActivity extends NativeActivity {
 		Intent intent = new Intent();
 		intent.putExtra("args", parameters);
 		intent.setAction("RUN_WINDBOT");
-		getApplicationContext().sendBroadcast(intent);
+		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 	}
 
 	@SuppressWarnings("unused")
@@ -189,7 +192,7 @@ public class EpNativeActivity extends NativeActivity {
 		Intent intent = new Intent();
 		intent.putExtra("args", database);
 		intent.setAction("ATTACH_WINDBOT_DATABASE");
-		getApplicationContext().sendBroadcast(intent);
+		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 	}
 
 	@SuppressWarnings("unused")
@@ -197,7 +200,7 @@ public class EpNativeActivity extends NativeActivity {
 		Intent intent = new Intent();
 		intent.putExtra("current", current);
 		intent.setAction("INPUT_TEXT");
-		getApplicationContext().sendBroadcast(intent);
+		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 	}
 
 	@SuppressWarnings("unused")
@@ -205,7 +208,7 @@ public class EpNativeActivity extends NativeActivity {
 		Intent intent = new Intent();
 		intent.putExtra("args", parameters);
 		intent.setAction("MAKE_CHOICE");
-		getApplicationContext().sendBroadcast(intent);
+		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 	}
 
 	@SuppressWarnings("unused")
@@ -221,7 +224,7 @@ public class EpNativeActivity extends NativeActivity {
 		Intent intent = new Intent();
 		intent.putExtra("args", path);
 		intent.setAction("INSTALL_UPDATE");
-		getApplicationContext().sendBroadcast(intent);
+		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 	}
 
 	@SuppressWarnings("unused")
@@ -235,7 +238,7 @@ public class EpNativeActivity extends NativeActivity {
 		Intent intent = new Intent();
 		intent.putExtra("args", path);
 		intent.setAction("OPEN_SCRIPT");
-		getApplicationContext().sendBroadcast(intent);
+		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 	}
 
 	@SuppressWarnings("unused")
@@ -244,7 +247,7 @@ public class EpNativeActivity extends NativeActivity {
 		intent.putExtra("context", context);
 		intent.putExtra("message", message);
 		intent.setAction("SHOW_ERROR_WINDOW");
-		getApplicationContext().sendBroadcast(intent);
+		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 	}
 
 	@SuppressWarnings("unused")
@@ -252,7 +255,7 @@ public class EpNativeActivity extends NativeActivity {
 		Intent intent = new Intent();
 		intent.putExtra("args", path);
 		intent.setAction("SHARE_FILE");
-		getApplicationContext().sendBroadcast(intent);
+		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 	}
 
 	@SuppressWarnings("unused")
@@ -336,6 +339,6 @@ public class EpNativeActivity extends NativeActivity {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		unregisterReceiver(myReceiver);
+		LocalBroadcastManager.getInstance(this).unregisterReceiver(myReceiver);
 	}
 }
