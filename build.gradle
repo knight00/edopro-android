@@ -18,6 +18,10 @@ allprojects {
 apply plugin: "com.android.application"
 
 android {
+	lintOptions {
+		disable 'ExpiredTargetSdkVersion'
+	}
+
 	compileSdk 35
 
 	defaultConfig {
