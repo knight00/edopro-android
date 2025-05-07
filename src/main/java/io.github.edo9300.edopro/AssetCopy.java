@@ -23,9 +23,13 @@ public class AssetCopy extends Activity {
 	static {
 		System.loadLibrary("assetcopier");
 	}
+
 	public static native boolean makeDirectory(String path);
+
 	public static native boolean fileDelete(String path);
+
 	public static native boolean copyAssetToDestination(AssetManager assetManager, String source, String destination);
+
 	private ProgressBar m_ProgressBar;
 	private TextView m_Filename;
 	private copyAssetTask m_AssetCopy;
@@ -45,7 +49,7 @@ public class AssetCopy extends Activity {
 		Bundle b = getIntent().getExtras();
 		String _workingDir = "_workingDir";
 		boolean _isUpdate = false;
-		if(b != null){
+		if (b != null) {
 			_workingDir = b.getString("workingDir");
 			_isUpdate = b.getBoolean("isUpdate");
 		}
@@ -134,8 +138,8 @@ public class AssetCopy extends Activity {
 				String filename = m_tocopy.get(i);
 				String full_source_filename = isUpdate ? "update/" + filename : "defaults/" + filename;
 				publishProgress(i);
-				if(copyAsset(full_source_filename, workingDir + "/" + filename))
-					Log.v("AssetCopy", "Copied file: " +	m_tocopy.get(i));
+				if (copyAsset(full_source_filename, workingDir + "/" + filename))
+					Log.v("AssetCopy", "Copied file: " + m_tocopy.get(i));
 				else
 					Log.e("AssetCopy", "Copying file: " + m_tocopy.get(i));
 			}
@@ -165,11 +169,11 @@ public class AssetCopy extends Activity {
 			for (String current_path : m_filenames) {
 				String FlashPath = workingDir + "/" + current_path;
 				if (isAssetFolder(current_path)) {
-					if(current_path.isEmpty()){
-						FlashPath=workingDir;
+					if (current_path.isEmpty()) {
+						FlashPath = workingDir;
 					}
 					/* store information and update gui */
-					if(isUpdate)
+					if (isUpdate)
 						m_Foldername = "update/" + current_path;
 					else
 						m_Foldername = "defaults/" + current_path;
@@ -185,7 +189,7 @@ public class AssetCopy extends Activity {
 					}
 					continue;
 				}
-				if(isUpdate)
+				if (isUpdate)
 					fileDelete(FlashPath);
 				m_tocopy.add(current_path);
 			}
@@ -218,7 +222,7 @@ public class AssetCopy extends Activity {
 		void BuildFileList() {
 			long entrycount = 0;
 			try {
-				InputStream is = getAssets().open(isUpdate ? "filelistu.txt": "filelist.txt");
+				InputStream is = getAssets().open(isUpdate ? "filelistu.txt" : "filelist.txt");
 				BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 
 				String line = reader.readLine();

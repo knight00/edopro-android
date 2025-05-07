@@ -86,6 +86,7 @@ struct SettingsWindow {
 	irr::gui::IGUICheckBox* chkSTAutoPos;
 	irr::gui::IGUICheckBox* chkRandomPos;
 	irr::gui::IGUICheckBox* chkNoChainDelay;
+	irr::gui::IGUICheckBox* chkAutoRPS;
 
 	SettingsTab sound;
 	irr::gui::IGUICheckBox* chkEnableSound;
@@ -96,6 +97,8 @@ struct SettingsWindow {
 	irr::gui::IGUIScrollBar* scrMusicVolume;
 	irr::gui::IGUICheckBox* chkLoopMusic;
 	irr::gui::IGUIStaticText* stNoAudioBackend;
+	irr::gui::IGUIStaticText* stAudioBackend;
+	irr::gui::IGUIComboBox* cbAudioBackend;
 
 	SettingsTab graphics;
 	irr::gui::IGUICheckBox* chkScaleBackground;

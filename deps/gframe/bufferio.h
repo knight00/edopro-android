@@ -50,8 +50,7 @@ public:
 private:
 	static constexpr inline bool isUtf16 = sizeof(wchar_t) == 2;
 	template<bool check_output_size = false>
-	static int EncodeUTF8internal(epro::wstringview source, char* out, size_t size = 0) {
-		(void)size;
+	static int EncodeUTF8internal(epro::wstringview source, char* out, [[maybe_unused]] size_t size = 0) {
 		char* pstr = out;
 		auto GetNextSize = [](auto cur) -> size_t {
 			if(cur < 0x80u)
@@ -112,8 +111,7 @@ private:
 		return static_cast<int>(out - pstr);
 	}
 	template<bool check_output_size = false>
-	static int DecodeUTF8internal(epro::stringview source, wchar_t* out, size_t size = 0) {
-		(void)size;
+	static int DecodeUTF8internal(epro::stringview source, wchar_t* out, [[maybe_unused]] size_t size = 0) {
 		wchar_t* pstr = out;
 		while(!source.empty()) {
 			auto first_codepoint = static_cast<unsigned char>(*source.begin());
@@ -209,7 +207,7 @@ public:
 				}
 			}
 			*out = 0;
-			return static_cast<int>(out - pstr);
+			return static_cast<int>(out - pstr) + 1;
 		}
 	}
 	// UTF-16/UTF-32 to UTF-16
@@ -236,7 +234,7 @@ public:
 				}
 			}
 			*out = 0;
-			return static_cast<int>(out - pstr);
+			return static_cast<int>(out - pstr) + 1;
 		}
 	}
 	static uint32_t GetVal(const wchar_t* pstr) {

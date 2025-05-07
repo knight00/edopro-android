@@ -213,8 +213,9 @@ void Game::Initialize() {
 											L"\n"
 											L"Project Ignis:\n"
 											L"ahtelel, Cybercatman, Dragon3989, DyXel, edo9300, EerieCode,"
-											L"Gideon, Hatter, Icematoro, Larry126, LogicalNonsense, pyrQ, Sanct,"
+											L"Finn, Gideon, Hatter, Icematoro, Larry126, Naim, pyrQ, Sanct,"
 											L"senpaizuri, Steeldarkeagel, TheRazgriz, WolfOfWolves, Yamato, YoshiDuels\n"
+											L"\n"
 											L"Default background and icon: LogicalNonsense\n"
 											L"Default fields: Icematoro\n"
 											L"\n"
@@ -1107,12 +1108,12 @@ bool Game::LoadCore() {
 	coreJustLoaded = false;
 	ocgcore = LoadOCGcore(Utils::GetWorkingDirectory());
 	if(ocgcore){
-		corename = Utils::ToUnicodeIfNeeded(Utils::GetWorkingDirectory());
+		corename = L"./";
 	} else {
 		const auto path = epro::format(EPRO_TEXT("{}/expansions/"), Utils::GetWorkingDirectory());
 		ocgcore = LoadOCGcore(path);
 		if(ocgcore)
-			corename = Utils::ToUnicodeIfNeeded(path);
+			corename = L"./expansions/";
 	}
 	coreloaded = ocgcore != nullptr;
 	if(gRepoManager->IsReadOnly())
@@ -1755,6 +1756,9 @@ void Game::PopulateSettingsWindow() {
 		gSettings.chkNoChainDelay = env->addCheckBox(gGameConfig->chkWaitChain, GetNextRect(), sPanel, CHECKBOX_NO_CHAIN_DELAY, gDataManager->GetSysString(1277).data());
 		menuHandler.MakeElementSynchronized(gSettings.chkNoChainDelay);
 		defaultStrings.emplace_back(gSettings.chkNoChainDelay, 1277);
+
+		gSettings.chkAutoRPS = env->addCheckBox(gGameConfig->chkAutoRPS, GetNextRect(), sPanel, CHECKBOX_AUTO_RPS, gDataManager->GetSysString(12124).data());
+		defaultStrings.emplace_back(gSettings.chkAutoRPS, 12124);
 	}
 
 	{
@@ -1763,6 +1767,21 @@ void Game::PopulateSettingsWindow() {
 
 		ResetXandY();
 		auto* sPanel = gSettings.sound.panel->getSubpanel();
+
+		if constexpr(SoundManager::HasMultipleBackends()) {
+			gSettings.stAudioBackend = env->addStaticText(gDataManager->GetSysString(12125).data(), GetCurrentRectWithXOffset(15, 115), false, true, sPanel);
+			defaultStrings.emplace_back(gSettings.stAudioBackend, 12125);
+			gSettings.cbAudioBackend = AddComboBox(env, GetCurrentRectWithXOffset(120, 320), sPanel, -1);
+			int selected_backend = 0;
+			for(const auto& backend : SoundManager::GetSupportedBackends()) {
+				if(auto idx = gSettings.cbAudioBackend->addItem(epro::to_wstring(backend).data(), backend); backend == gGameConfig->sound_backend) {
+					selected_backend = idx;
+				}
+			}
+			gSettings.cbAudioBackend->setSelected(selected_backend);
+			cur_y += y_incr;
+		}
+
 		gSettings.chkEnableSound = env->addCheckBox(gGameConfig->enablesound, GetNextRect(), sPanel, CHECKBOX_ENABLE_SOUND, gDataManager->GetSysString(2047).data());
 		menuHandler.MakeElementSynchronized(gSettings.chkEnableSound);
 		defaultStrings.emplace_back(gSettings.chkEnableSound, 2047);
@@ -2574,6 +2593,7 @@ void Game::SaveConfig() {
 	gGameConfig->chkRandomPos = gSettings.chkRandomPos->isChecked();
 	gGameConfig->chkAutoChain = gSettings.chkAutoChainOrder->isChecked();
 	gGameConfig->chkWaitChain = gSettings.chkNoChainDelay->isChecked();
+	gGameConfig->chkAutoRPS = gSettings.chkAutoRPS->isChecked();
 	gGameConfig->chkIgnore1 = gSettings.chkIgnoreOpponents->isChecked();
 	gGameConfig->chkIgnore2 = gSettings.chkIgnoreSpectators->isChecked();
 	gGameConfig->chkHideHintButton = gSettings.chkHideChainButtons->isChecked();
@@ -2588,6 +2608,9 @@ void Game::SaveConfig() {
 	gGameConfig->useIntegratedGpu = gSettings.chkIntegratedGPU->isChecked();
 #endif
 	gGameConfig->driver_type = static_cast<irr::video::E_DRIVER_TYPE>(gSettings.cbVideoDriver->getItemData(gSettings.cbVideoDriver->getSelected()));
+	if constexpr(SoundManager::HasMultipleBackends()) {
+		gGameConfig->sound_backend = static_cast<SoundManager::BACKEND>(gSettings.cbAudioBackend->getItemData(gSettings.cbAudioBackend->getSelected()));
+	}
 #if EDOPRO_ANDROID
 	if(gGameConfig->Save(epro::format("{}/system.conf", porting::internal_storage))) {
 		Utils::FileCopy(epro::format("{}/system.conf", porting::internal_storage), EPRO_TEXT("./config/system.conf"));
@@ -3110,33 +3133,33 @@ void Game::UpdateDuelParam() {
 			cbDuelRule->removeItem(8);
 			break;
 		}
-	}/*fallthrough*/
+	}
+	[[fallthrough]];
 	case DUEL_MODE_RUSH: {
 		cbDuelRule->setSelected(6);
 		if(flag2 == DUEL_MODE_MR5_FORB) {
 			cbDuelRule->removeItem(8);
 			break;
 		}
-	}/*fallthrough*/
+	}
+	[[fallthrough]];
 	case DUEL_MODE_GOAT: {
 		cbDuelRule->setSelected(7);
 		if(flag2 == DUEL_MODE_MR1_FORB) {
 			cbDuelRule->removeItem(8);
 			break;
 		}
-	}/*fallthrough*/
+	}
+	[[fallthrough]];
 	default:
 		switch(flag & ~DUEL_TCG_SEGOC_NONPUBLIC) {
-#ifdef __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
-#endif
 	#define CHECK(MR) \
 		case DUEL_MODE_MR##MR:{ \
 			cbDuelRule->setSelected(MR - 1); \
 			if (flag2 == DUEL_MODE_MR##MR##_FORB) { \
 				cbDuelRule->removeItem(8); break; } \
-			}
+			} \
+			[[fallthrough]];
 			CHECK(1)
 			CHECK(2)
 			CHECK(3)
@@ -3148,9 +3171,6 @@ void Game::UpdateDuelParam() {
 			cbDuelRule->setSelected(8);
 			break;
 		}
-#ifdef __GNUC__
-#pragma GCC diagnostic pop
-#endif
 		}
 		break;
 	}
@@ -3450,6 +3470,8 @@ void Game::ReloadCBLimit() {
 	} else {
 		chkAnime->setEnabled(false);
 		cbLimit->addItem(gDataManager->GetSysString(1912).data(), DeckBuilder::LIMITATION_FILTER_LEGEND);
+		cbLimit->addItem(gDataManager->GetSysString(1266).data(), DeckBuilder::LIMITATION_FILTER_ILLEGAL);
+		cbLimit->addItem(gDataManager->GetSysString(1903).data(), DeckBuilder::LIMITATION_FILTER_PRERELEASE);
 		cbLimit->addItem(gDataManager->GetSysString(1310).data(), DeckBuilder::LIMITATION_FILTER_ALL);
 	}
 }
@@ -3914,7 +3936,7 @@ OCG_Duel Game::SetupDuel(OCG_DuelOptions opts) {
 	opts.payload3 = this;
 	opts.enableUnsafeLibraries = 1;
 	OCG_Duel pduel = nullptr;
-	OCG_CreateDuel(&pduel, opts);
+	OCG_CreateDuel(&pduel, &opts);
 	LoadScript(pduel, "constant.lua");
 	LoadScript(pduel, "utility.lua");
 	for(const auto& script : init_scripts) {

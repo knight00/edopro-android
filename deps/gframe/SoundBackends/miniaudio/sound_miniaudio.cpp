@@ -2,12 +2,20 @@
 #include "sound_miniaudio.h"
 
 #include <utility>
+#include "../../compiler_features.h"
 #include "../../fmt.h"
 #include "../../utils.h"
 
 #ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable : 4505) // unreferenced local function has been removed
+#endif
+
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#pragma GCC diagnostic ignored "-Wunused-result"
+#pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
 namespace {
@@ -19,9 +27,24 @@ namespace {
 #define MA_API static
 #define MA_NO_ENCODING
 #define MINIAUDIO_IMPLEMENTATION
+#if EDOPRO_WINDOWS
+#if !defined(WIN32_LEAN_AND_MEAN)
+#define WIN32_LEAN_AND_MEAN
+#endif
+// needed to support drag and drop
+#define MA_COINIT_VALUE 0x2 /*COINIT_APARTMENTTHREADED*/
+#endif
+
+#define MA_ON_THREAD_ENTRY do {ygo::Utils::SetThreadName("miniaudio");} while(0);
 
 #include "miniaudio.h"
+#ifdef PlaySound
+#undef PlaySound
+#endif
 
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
@@ -39,6 +62,11 @@ SoundMiniaudioBase::SoundMiniaudioBase() : engine{ nullptr, &FreeEngine }, sound
 			throw std::runtime_error(epro::format("Failed to initialize miniaudio engine, {}", ma_result_description(res)));
 		}
 		engine = EnginePtr{ tmp_engine.release(), &FreeEngine };
+		ma_log_register_callback(ma_engine_get_log(engine.get()),
+								 ma_log_callback_init(
+									 []([[maybe_unused]] void* userdata, ma_uint32 level, const char* message) {
+											epro::print("Miniaudio {}: {}\n", ma_log_level_to_string(level), message);
+										}, nullptr));
 	}
 	{
 		auto tmp_sound_group = std::make_unique<MaSoundGroup>();
@@ -66,9 +94,9 @@ constexpr auto SOUND_INIT_FLAGS = MA_SOUND_FLAG_NO_SPATIALIZATION | MA_SOUND_FLA
 template<typename Char, typename ...Args>
 static auto sound_init_from_file(ma_engine* engine, Char* path, Args&&... args) {
 	if constexpr(std::is_same_v<Char, wchar_t>) {
-		return ma_sound_init_from_file_w(engine, path, SOUND_INIT_FLAGS, std::forward<Args>(args)...);
+		return ma_sound_init_from_file_w(engine, path, std::forward<Args>(args)...);
 	} else {
-		return ma_sound_init_from_file(engine, path, SOUND_INIT_FLAGS, std::forward<Args>(args)...);
+		return ma_sound_init_from_file(engine, path, std::forward<Args>(args)...);
 	}
 }
 
@@ -78,7 +106,7 @@ bool SoundMiniaudioBase::PlayMusic(const std::string& name, bool loop) {
 
 	auto snd = std::make_unique<MaSound>();
 	if(sound_init_from_file(engine.get(), ygo::Utils::ToPathString(name).data(),
-							nullptr, nullptr, snd.get()) != MA_SUCCESS)
+							SOUND_INIT_FLAGS | MA_SOUND_FLAG_STREAM, nullptr, nullptr, snd.get()) != MA_SUCCESS)
 		return false;
 
 	ma_sound_set_volume(snd.get(), music_volume);
@@ -96,7 +124,7 @@ bool SoundMiniaudioBase::PlayMusic(const std::string& name, bool loop) {
 
 SoundMiniaudioBase::SoundPtr SoundMiniaudioBase::AdoptSoundPointer(MaSound* soundPtr) {
 	return { soundPtr, &FreeSound };
-};
+}
 
 MaSound* SoundMiniaudioBase::getCachedSound(const std::string& name) {
 	auto it = cached_sounds.find(name);
@@ -105,7 +133,7 @@ MaSound* SoundMiniaudioBase::getCachedSound(const std::string& name) {
 
 	auto snd = std::make_unique<MaSound>();
 	if(sound_init_from_file(engine.get(), ygo::Utils::ToPathString(name).data(),
-							sounds_group.get(), nullptr, snd.get()) != MA_SUCCESS)
+							SOUND_INIT_FLAGS, sounds_group.get(), nullptr, snd.get()) != MA_SUCCESS)
 		return nullptr;
 
 	return cached_sounds.emplace(name, AdoptSoundPointer(snd.release())).first->second.get();
@@ -156,7 +184,7 @@ void SoundMiniaudioBase::PauseMusic(bool pause) {
 void SoundMiniaudioBase::LoopMusic(bool loop) {
 	if(!MusicPlaying())
 		return;
-	if(ma_sound_is_looping(music.get()) != loop) {
+	if(!!ma_sound_is_looping(music.get()) != loop) {
 		ma_sound_set_looping(music.get(), loop);
 	}
 }
@@ -197,8 +225,23 @@ void SoundMiniaudioBase::FreeSoundGroup(MaSoundGroup* sound_group) {
 	delete sound_group;
 }
 namespace {
+
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4244) // conversion from 'int' to 'uintX', possible loss of data
+#pragma warning(disable : 4456) // declaration of 'z' hides previous local declaration
+#pragma warning(disable : 4457) // declaration of 'm' hides function parameter
+#pragma warning(disable : 4245) // '=': conversion from 'int' to '`uint32', signed/unsigned mismatch
+#pragma warning(disable : 4701) // potentially uninitialized local variable used
+#endif
+
+
 #undef STB_VORBIS_HEADER_ONLY
 #include "stb_vorbis.h"
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 }
 
 #endif //YGOPRO_USE_MINIAUDIO

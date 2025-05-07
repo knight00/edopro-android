@@ -2,10 +2,9 @@ buildscript {
 	repositories {
 		mavenCentral()
 		google()
-		jcenter()
 	}
 	dependencies {
-		classpath 'com.android.tools.build:gradle:3.4.2'
+		classpath 'com.android.tools.build:gradle:8.9.2'
 	}
 }
 
@@ -13,47 +12,53 @@ allprojects {
 	repositories {
 		mavenCentral()
 		google()
-		jcenter()
 	}
 }
 
 apply plugin: "com.android.application"
 
 android {
-	compileSdkVersion 28
+	lint {
+		abortOnError false
+		disable 'OldTargetApi', 'GoogleAppIndexingWarning', 'ExpiredTargetSdkVersion'
+	}
+	compileOptions {
+		sourceCompatibility JavaVersion.VERSION_17
+		targetCompatibility JavaVersion.VERSION_17
+	}
+
+	compileSdk 36
 
 	defaultConfig {
 		versionCode 40
-		versionName "KCG V19.3"
+		versionName "KCG V41"
 		minSdkVersion 16
 		targetSdkVersion 28
 		applicationId 'perfectdicky.edokcg'
-		manifestPlaceholders = [package: "io.github.edo9300.edopro", project: project.name]
+		manifestPlaceholders = [project: project.name]
 		ndk {
-			// Specifies the ABI configurations of your native
-			// libraries Gradle should build and package with your APK.
+			//noinspection ChromeOsAbiSupport
 			abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86'//, 'x86_64'
 		}
 	}
-	
+
 	sourceSets{
 		main{
 			jniLibs.srcDirs 'libs'
 		}
 	}
 
-	lintOptions {
-		disable "OldTargetApi", "GoogleAppIndexingWarning"
-		abortOnError false
-	}
-
-	aaptOptions {
-		noCompress 'dll', "config"
-		ignoreAssetsPattern '!.svn:!.git:<dir>_*:!CVS:!thumbs.db:!picasa.ini:!*.scc:*~'
-	}
 
 	Properties props = new Properties()
-    props.load(new FileInputStream(file("local.properties")))
+	namespace 'io.github.edo9300.edopro'
+	androidResources {
+		ignoreAssetsPattern '!.svn:!.git:<dir>_*:!CVS:!thumbs.db:!picasa.ini:!*.scc:*~'
+		noCompress += ['dll', 'config']
+	}
+	buildFeatures {
+		buildConfig true
+	}
+	props.load(new FileInputStream(file("local.properties")))
 
 	if (props.getProperty("keystore") != null) {
 		signingConfigs {
@@ -73,13 +78,9 @@ android {
 	}
 }
 
-repositories {
-	flatDir {
-		dirs 'libs'
-	}
-}
-
 dependencies {
-	implementation 'com.android.support:support-v4:28.0.0'
-	implementation(name: 'libWindbot', ext: 'aar')
+	//noinspection GradleDependency
+	implementation 'androidx.appcompat:appcompat:1.6.1'
+	implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
+	implementation(files("libs/libWindbot.aar"))
 }
