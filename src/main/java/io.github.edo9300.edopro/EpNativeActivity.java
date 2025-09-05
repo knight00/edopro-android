@@ -263,16 +263,6 @@ public class EpNativeActivity extends NativeActivity {
 		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 	}
 
-	///kdiy////////
-	// @SuppressWarnings("unused")
-	// public void openAnime(String path) {
-	// 	Intent intent = new Intent();
-	// 	intent.putExtra("args", path);
-	// 	intent.setAction("PLAY_ANIME");
-	// 	getApplicationContext().sendBroadcast(intent);
-	// }
-	///kdiy////////
-
 	@SuppressWarnings("unused")
 	public float getDensity() {
 		return getResources().getDisplayMetrics().density;
