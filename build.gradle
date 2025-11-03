@@ -33,8 +33,8 @@ android {
 		versionCode 40
 		versionName "KCG V41"
 		minSdkVersion 16
-		targetSdkVersion 28
-		applicationId 'perfectdicky.edokcg'
+		targetSdkVersion 36
+		applicationId "perfectdicky.edokcg"
 		manifestPlaceholders = [project: project.name]
 		ndk {
 			//noinspection ChromeOsAbiSupport
@@ -82,5 +82,6 @@ dependencies {
 	//noinspection GradleDependency
 	implementation 'androidx.appcompat:appcompat:1.6.1'
 	implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
+	implementation "androidx.documentfile:documentfile:1.0.1"
 	implementation(files("libs/libWindbot.aar"))
 }

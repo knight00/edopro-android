@@ -29,6 +29,11 @@ LOCAL_LDFLAGS += "-Wl,-z,max-page-size=16384"
 LOCAL_LDFLAGS += "-Wl,-z,common-page-size=16384"
 endif
 
+ifeq ($(TARGET_ARCH_ABI), x86_64)
+LOCAL_LDFLAGS += "-Wl,-z,max-page-size=16384"
+LOCAL_LDFLAGS += "-Wl,-z,common-page-size=16384"
+endif
+
 ifneq ($(PICS_URL),)
 LOCAL_CFLAGS += -DDEFAULT_PIC_URL=\"$(PICS_URL)\"
 endif
@@ -58,6 +63,7 @@ LOCAL_C_INCLUDES := $(GFRAME_PATH)/CGUICustomContextMenu \
 					$(GFRAME_PATH)/ResizeablePanel
 
 LOCAL_SRC_FILES := $(GFRAME_PATH)/Android/COSAndroidOperator.cpp \
+				   $(GFRAME_PATH)/Android/file_stream.cpp \
 				   $(GFRAME_PATH)/Android/porting_android.cpp \
 				   $(GFRAME_PATH)/CGUICustomCheckBox/CGUICustomCheckBox.cpp \
 				   $(GFRAME_PATH)/CGUICustomContextMenu/CGUICustomContextMenu.cpp \

@@ -13,12 +13,14 @@ import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.DocumentsContract;
 import android.util.Log;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.content.FileProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -42,6 +44,8 @@ public class EpNativeActivity extends NativeActivity {
 
 	private boolean use_windbot;
 
+	private StorageOperations storage;
+
 	static {
 		//on 4.2 libraries aren't properly loaded automatically
 		//https://stackoverflow.com/questions/28806373/android-4-2-ndk-library-loading-crash-load-librarylinker-cpp750-soinfo-l/28817942
@@ -60,6 +64,10 @@ public class EpNativeActivity extends NativeActivity {
 		super.onCreate(savedInstanceState);
 		final var ex = Objects.requireNonNull(getIntent().getExtras());
 		use_windbot = ex.getBoolean("USE_WINDBOT", true);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+			final String scoped_storage_dir = ex.getString("SCOPED_STORAGE_DIR", "");
+			storage = new StorageOperations(this, scoped_storage_dir);
+		}
 		var filter = new IntentFilter();
 		filter.addAction("RUN_WINDBOT");
 		filter.addAction("ATTACH_WINDBOT_DATABASE");
@@ -145,7 +153,12 @@ public class EpNativeActivity extends NativeActivity {
 				case "OPEN_SCRIPT": {
 					final var path = Objects.requireNonNull(intent.getStringExtra("args"));
 					Log.i("EDOPro", "opening script from: " + path);
-					final var uri = FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", new File(path));
+					Uri uri;
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && path.startsWith("content://")) {
+						uri = Uri.parse(storage.normalizeUri(path));
+					} else {
+						uri = FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", new File(path));
+					}
 					var fileIntent = new Intent(Intent.ACTION_VIEW);
 					fileIntent.setDataAndType(uri, "text/*");
 					fileIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -167,8 +180,13 @@ public class EpNativeActivity extends NativeActivity {
 				}
 				case "SHARE_FILE": {
 					final var path = Objects.requireNonNull(intent.getStringExtra("args"));
+					Uri uri;
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && path.startsWith("content://")) {
+						uri = Uri.parse(storage.normalizeUri(path));
+					} else {
+						uri = FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", new File(path));
+					}
 					Log.i("EDOPro", "sharing file from: " + path);
-					final var uri = FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", new File(path));
 					var fileIntent = new Intent(Intent.ACTION_SEND);
 					fileIntent.setType("text/plain");
 					fileIntent.putExtra(Intent.EXTRA_STREAM, uri);
@@ -176,9 +194,37 @@ public class EpNativeActivity extends NativeActivity {
 					startActivity(fileIntent);
 					break;
 				}
+				case "OPEN_WORK_DIRECTORY": {
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+						var documentPackage = getDocumentsUiPackage();
+						if (documentPackage == null)
+							break;
+						final var EXTERNAL_STORAGE_PROVIDER_AUTHORITY = "com.android.externalstorage.documents";
+						final var DOCUMENT_ID_PRIMARY = "primary";
+						final var DOCUMENT_ID_PRIMARY_ANDROID_DATA = "primary:Android/data/" + context.getApplicationContext().getPackageName() + "/files/EDOPro";
+						final var TREE_URI_PRIMARY_ANDROID = DocumentsContract.buildTreeDocumentUri(EXTERNAL_STORAGE_PROVIDER_AUTHORITY, DOCUMENT_ID_PRIMARY);
+						final var DOCUMENT_URI_ANDROID_DATA = DocumentsContract.buildDocumentUriUsingTree(TREE_URI_PRIMARY_ANDROID, DOCUMENT_ID_PRIMARY_ANDROID_DATA);
+						Intent documentViewerIntent = new Intent(Intent.ACTION_VIEW)
+								.setDataAndType(DOCUMENT_URI_ANDROID_DATA, DocumentsContract.Document.MIME_TYPE_DIR)
+								.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION).setPackage(documentPackage);
+						if (documentViewerIntent.resolveActivity(getPackageManager()) != null)
+							startActivity(documentViewerIntent);
+					}
+					break;
+				}
 			}
 		}
 	};
+
+	@RequiresApi(Build.VERSION_CODES.R)
+	private String getDocumentsUiPackage() {
+		var packageInfos = getPackageManager().getPackagesHoldingPermissions(new String[]{android.Manifest.permission.MANAGE_DOCUMENTS}, 0);
+		for (final var packageinfo : packageInfos) {
+			if (packageinfo.packageName.endsWith(".documentsui"))
+				return packageinfo.packageName;
+		}
+		return null;
+	}
 
 	@SuppressWarnings({"unused", "deprecation"})
 	public void launchWindbot(String parameters) {
@@ -263,6 +309,13 @@ public class EpNativeActivity extends NativeActivity {
 		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 	}
 
+	@SuppressWarnings({"unused", "deprecation"})
+	public void openWorkdir() {
+		var intent = new Intent();
+		intent.setAction("OPEN_WORK_DIRECTORY");
+		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+	}
+
 	@SuppressWarnings("unused")
 	public float getDensity() {
 		return getResources().getDisplayMetrics().density;
@@ -298,11 +351,11 @@ public class EpNativeActivity extends NativeActivity {
 
 	@SuppressWarnings("unused")
 	public void setClipboard(final String text) {
-		EpNativeActivity.this.runOnUiThread(() -> {
-			((ClipboardManager) getSystemService(CLIPBOARD_SERVICE))
-					.setPrimaryClip(ClipData.newPlainText("", text));
-		});
+		EpNativeActivity.this.runOnUiThread(() -> ((ClipboardManager) getSystemService(CLIPBOARD_SERVICE))
+				.setPrimaryClip(ClipData.newPlainText("", text)));
 	}
+
+	final private Object lock = new Object();
 
 	class RunnableObject implements Runnable {
 		public String result = "";
@@ -316,8 +369,8 @@ public class EpNativeActivity extends NativeActivity {
 				var clip = clipboard.getPrimaryClip();
 				result = clip.getItemAt(0).getText().toString();
 			}
-			synchronized (this) {
-				this.notify();
+			synchronized (lock) {
+				lock.notify();
 			}
 		}
 	}
@@ -325,13 +378,39 @@ public class EpNativeActivity extends NativeActivity {
 	@SuppressWarnings("unused")
 	public String getClipboard() {
 		var myRunnable = new RunnableObject();
-		EpNativeActivity.this.runOnUiThread(myRunnable);
-		try {
-			myRunnable.wait(); // unlocks myRunable while waiting
-		} catch (InterruptedException e) {
-			return "";
+		synchronized (lock) {
+			EpNativeActivity.this.runOnUiThread(myRunnable);
+			try {
+				lock.wait(); // unlocks myRunable while waiting
+			} catch (InterruptedException e) {
+				return "";
+			}
 		}
 		return myRunnable.result;
+	}
+
+	@SuppressWarnings("unused")
+	@RequiresApi(Build.VERSION_CODES.R)
+	public boolean contentUriRemoveFile(String uriString) {
+		return storage.contentUriRemoveFile(uriString);
+	}
+
+	@SuppressWarnings("unused")
+	@RequiresApi(Build.VERSION_CODES.R)
+	public boolean contentUriCreateDirectory(String dirUri) {
+		return storage.contentUriCreateDirectory(dirUri);
+	}
+
+	@SuppressWarnings("unused")
+	@RequiresApi(Build.VERSION_CODES.R)
+	public int openContentUri(String uriString, String mode) {
+		return storage.openContentUri(uriString, mode);
+	}
+
+	@SuppressWarnings("unused")
+	@RequiresApi(Build.VERSION_CODES.R)
+	public String[] listFolderUri(String uriString) {
+		return storage.listFolderUri(uriString);
 	}
 
 	@Override
