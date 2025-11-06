@@ -17,3 +17,6 @@ edopro.sh
 ndk-bundle/
 ndk-bundle.zip
 bundled_font.cpp
+/deps/opencv2
+/ndk-bundler0
+/deps/ffmpeg
