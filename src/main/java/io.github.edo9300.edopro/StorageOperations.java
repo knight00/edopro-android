@@ -43,7 +43,7 @@ public class StorageOperations {
 				return false;
 			}
 		} catch (Exception e) {
-			Log.e("EDOPro", "contentUriRemoveFile exception: " + e);
+			Log.e("EDOPro-KCG", "contentUriRemoveFile exception: " + e);
 			return false;
 		}
 	}
@@ -85,7 +85,7 @@ public class StorageOperations {
 			}
 			return EXISTS_TYPE.NONE;
 		} catch (Exception e) {
-			Log.e("EDOPro", "Failed query: " + e);
+			Log.e("EDOPro-KCG", "Failed query: " + e);
 			return EXISTS_TYPE.NONE;
 		} finally {
 			closeQuietly(c);
@@ -120,7 +120,7 @@ public class StorageOperations {
 						var createdDir = documentFile.createDirectory(dirName);
 						return createdDir != null;
 					} else {
-						Log.e("EDOPro", "contentUriCreateDirectory: fromTreeUri returned null");
+						Log.e("EDOPro-KCG", "contentUriCreateDirectory: fromTreeUri returned null");
 						return false;
 					}
 				}
@@ -129,7 +129,7 @@ public class StorageOperations {
 				}
 			}
 		} catch (Exception e) {
-			Log.e("EDOPro", "contentUriCreateDirectory exception: " + e);
+			Log.e("EDOPro-KCG", "contentUriCreateDirectory exception: " + e);
 			return false;
 		}
 	}
@@ -143,11 +143,11 @@ public class StorageOperations {
 				var createdFile = documentFile.createFile("application/octet-stream", Uri.decode(fileName));
 				return createdFile != null;
 			} else {
-				Log.e("EDOPro", "contentUriCreateFile: fromTreeUri returned null");
+				Log.e("EDOPro-KCG", "contentUriCreateFile: fromTreeUri returned null");
 				return false;
 			}
 		} catch (Exception e) {
-			Log.e("EDOPro", "contentUriCreateFile exception: " + e);
+			Log.e("EDOPro-KCG", "contentUriCreateFile exception: " + e);
 			return false;
 		}
 	}
@@ -175,17 +175,17 @@ public class StorageOperations {
 			}
 			try (var filePfd = context.getContentResolver().openFileDescriptor(uri, mode)) {
 				if (filePfd == null) {
-					Log.e("EDOPro", "Failed to get file descriptor for " + uriString);
+					Log.e("EDOPro-KCG", "Failed to get file descriptor for " + uriString);
 					return -1;
 				}
 				return filePfd.detachFd();  // Take ownership of the fd.
 			}
 		} catch (IllegalArgumentException e) {
 			// This exception is long and ugly and really just means file not found.
-			Log.d("EDOPro", "openFileDescriptor: File not found." + e);
+			Log.d("EDOPro-KCG", "openFileDescriptor: File not found." + e);
 			return -1;
 		} catch (Exception e) {
-			Log.e("EDOPro", "Unexpected openContentUri exception: " + e);
+			Log.e("EDOPro-KCG", "Unexpected openContentUri exception: " + e);
 			return -1;
 		}
 	}
@@ -220,10 +220,10 @@ public class StorageOperations {
 			return filenames.toArray(new String[0]);
 		} catch (IllegalArgumentException e) {
 			// This exception is long and ugly and really just means file not found.
-			Log.d("EDOPro", "openFileDescriptor: File not found." + e);
+			Log.d("EDOPro-KCG", "openFileDescriptor: File not found." + e);
 			return new String[0];
 		} catch (Exception e) {
-			Log.e("EDOPro", "Unexpected openContentUri exception: " + e);
+			Log.e("EDOPro-KCG", "Unexpected openContentUri exception: " + e);
 			return new String[0];
 		}
 	}
@@ -254,7 +254,7 @@ public class StorageOperations {
 			inputStream.close();
 			outputStream.close();
 		} catch (Exception e) {
-			Log.e("EDOPro", "Unexpected copyDocument exception: " + e);
+			Log.e("EDOPro-KCG", "Unexpected copyDocument exception: " + e);
 		}
 	}
 
@@ -276,7 +276,7 @@ public class StorageOperations {
 		} catch (SecurityException e) {
 			return false;
 		} catch (Exception e) {
-			Log.e("EDOPro", "Unkonwn exception: " + e);
+			Log.e("EDOPro-KCG", "Unkonwn exception: " + e);
 			return false;
 		}
 	}

@@ -152,7 +152,7 @@ public class EpNativeActivity extends NativeActivity {
 				}
 				case "OPEN_SCRIPT": {
 					final var path = Objects.requireNonNull(intent.getStringExtra("args"));
-					Log.i("EDOPro", "opening script from: " + path);
+					Log.i("EDOPro-KCG", "opening script from: " + path);
 					Uri uri;
 					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && path.startsWith("content://")) {
 						uri = Uri.parse(storage.normalizeUri(path));
@@ -169,7 +169,7 @@ public class EpNativeActivity extends NativeActivity {
 				case "SHOW_ERROR_WINDOW": {
 					final var message_context = Objects.requireNonNull(intent.getStringExtra("context"));
 					final var message = Objects.requireNonNull(intent.getStringExtra("message"));
-					Log.i("EDOPro", "Received show error dialog " + message_context + " " + message);
+					Log.i("EDOPro-KCG", "Received show error dialog " + message_context + " " + message);
 					new AlertDialog.Builder(EpNativeActivity.this)
 							.setTitle(message_context)
 							.setMessage(message)
@@ -186,7 +186,7 @@ public class EpNativeActivity extends NativeActivity {
 					} else {
 						uri = FileProvider.getUriForFile(context, context.getApplicationContext().getPackageName() + ".provider", new File(path));
 					}
-					Log.i("EDOPro", "sharing file from: " + path);
+					Log.i("EDOPro-KCG", "sharing file from: " + path);
 					var fileIntent = new Intent(Intent.ACTION_SEND);
 					fileIntent.setType("text/plain");
 					fileIntent.putExtra(Intent.EXTRA_STREAM, uri);
@@ -201,7 +201,7 @@ public class EpNativeActivity extends NativeActivity {
 							break;
 						final var EXTERNAL_STORAGE_PROVIDER_AUTHORITY = "com.android.externalstorage.documents";
 						final var DOCUMENT_ID_PRIMARY = "primary";
-						final var DOCUMENT_ID_PRIMARY_ANDROID_DATA = "primary:Android/data/" + context.getApplicationContext().getPackageName() + "/files/EDOPro";
+						final var DOCUMENT_ID_PRIMARY_ANDROID_DATA = "primary:Android/data/" + context.getApplicationContext().getPackageName() + "/files/EDOPro-KCG";
 						final var TREE_URI_PRIMARY_ANDROID = DocumentsContract.buildTreeDocumentUri(EXTERNAL_STORAGE_PROVIDER_AUTHORITY, DOCUMENT_ID_PRIMARY);
 						final var DOCUMENT_URI_ANDROID_DATA = DocumentsContract.buildDocumentUriUsingTree(TREE_URI_PRIMARY_ANDROID, DOCUMENT_ID_PRIMARY_ANDROID_DATA);
 						Intent documentViewerIntent = new Intent(Intent.ACTION_VIEW)
@@ -267,10 +267,10 @@ public class EpNativeActivity extends NativeActivity {
 		try {
 			var file = new File(getFilesDir(), "should_copy_update");
 			if (!file.createNewFile()) {
-				Log.e("EDOPro", "error when creating should_copy_update file:");
+				Log.e("EDOPro-KCG", "error when creating should_copy_update file:");
 			}
 		} catch (Exception e) {
-			Log.e("EDOPro", "error when creating should_copy_update file: " + e.getMessage());
+			Log.e("EDOPro-KCG", "error when creating should_copy_update file: " + e.getMessage());
 		}
 		var intent = new Intent();
 		intent.putExtra("args", path);

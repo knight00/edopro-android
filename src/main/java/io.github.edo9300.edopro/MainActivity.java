@@ -56,12 +56,12 @@ public class MainActivity extends Activity {
 	private void showFileManager() {
 		final var EXTERNAL_STORAGE_PROVIDER_AUTHORITY = "com.android.externalstorage.documents";
 		final var DOCUMENT_ID_PRIMARY = "primary";
-		final var DOCUMENT_ID_PRIMARY_ANDROID_DATA = "primary:Android/data/" + getApplicationContext().getPackageName() + "/files/EDOPro";
+		final var DOCUMENT_ID_PRIMARY_ANDROID_DATA = "primary:Android/data/" + getApplicationContext().getPackageName() + "/files/EDOPro-KCG";
 		final var TREE_URI_PRIMARY_ANDROID = DocumentsContract.buildTreeDocumentUri(EXTERNAL_STORAGE_PROVIDER_AUTHORITY, DOCUMENT_ID_PRIMARY);
 		final var DOCUMENT_URI_ANDROID_DATA = DocumentsContract.buildDocumentUriUsingTree(TREE_URI_PRIMARY_ANDROID, DOCUMENT_ID_PRIMARY_ANDROID_DATA);
 
 		final var EDOPRO_PROVIDER_AUTHORITY = getApplicationContext().getPackageName() + ".document_provider";
-		final var filePath = getExternalFilesDir("EDOPro").getPath();
+		final var filePath = getExternalFilesDir("EDOPro-KCG").getPath();
 		final var EDOPRO_TREE_URI_PRIMARY_ANDROID = DocumentsContract.buildTreeDocumentUri(EDOPRO_PROVIDER_AUTHORITY, filePath);
 		final var EDOPRO_DOCUMENT_URI_ANDROID_DATA = DocumentsContract.buildDocumentUriUsingTree(EDOPRO_TREE_URI_PRIMARY_ANDROID, filePath);
 		final var intents = Arrays.asList(new Intent()
@@ -241,7 +241,7 @@ public class MainActivity extends Activity {
 					return;
 				}
 				var uri = data.getData();
-				Log.i("EDOPro", "Result URI " + uri);
+				Log.i("EDOPro-KCG", "Result URI " + uri);
 				var dest_dir = FileUtil.getFullPathFromTreeUri(uri, this);
 				if (dest_dir == null) {
 					Log.e("EDOPro-KCG", "returned URI is null");
@@ -306,8 +306,8 @@ public class MainActivity extends Activity {
 						Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
 				);
 
-				Log.i("EDOPro", "Result URI " + uri);
-				Log.i("EDOPro", "Parsed result URI " + DocumentFile.fromTreeUri(this, uri).getUri());
+				Log.i("EDOPro-KCG", "Result URI " + uri);
+				Log.i("EDOPro-KCG", "Parsed result URI " + DocumentFile.fromTreeUri(this, uri).getUri());
 				setWorkingDir(working_directory, DocumentFile.fromTreeUri(this, uri).getUri().toString());
 				break;
 			}
@@ -372,7 +372,7 @@ public class MainActivity extends Activity {
 				data_directory = br.readLine();
 				br.close();
 			} catch (IOException e) {
-				Log.e("EDOPro", "working directory file found but not read: " + e.getMessage());
+				Log.e("EDOPro-KCG", "working directory file found but not read: " + e.getMessage());
 			}
 		}
 
@@ -443,8 +443,8 @@ public class MainActivity extends Activity {
 	public void chooseWorkingDir() {
 		var i = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
 		if (android.os.Build.VERSION.SDK_INT >= 26) {
-			var suggestedPath = Environment.getExternalStorageDirectory().getPath() + "/EDOPro";
-			Log.d("EDOPro", suggestedPath);
+			var suggestedPath = Environment.getExternalStorageDirectory().getPath() + "/EDOPro-KCG";
+			Log.d("EDOPro-KCG", suggestedPath);
 			i.putExtra(DocumentsContract.EXTRA_INITIAL_URI, Uri.parse(suggestedPath));
 		}
 		i.addCategory(Intent.CATEGORY_DEFAULT);
@@ -458,8 +458,8 @@ public class MainActivity extends Activity {
 	@RequiresApi(Build.VERSION_CODES.R)
 	public void chooseDataDir(String base_dir) {
 		var i = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-		var suggestedPath = Environment.getExternalStorageDirectory().getPath() + "/EDOPro";
-		Log.d("EDOPro", suggestedPath);
+		var suggestedPath = Environment.getExternalStorageDirectory().getPath() + "/EDOPro-KCG";
+		Log.d("EDOPro-KCG", suggestedPath);
 		i.putExtra(DocumentsContract.EXTRA_INITIAL_URI, Uri.parse(suggestedPath));
 		i.addCategory(Intent.CATEGORY_DEFAULT);
 		i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -477,8 +477,8 @@ public class MainActivity extends Activity {
 				.setCancelable(false)
 				.setPositiveButton("OK", (dialog, id) -> {
 					var i = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-					var suggestedPath = Environment.getExternalStorageDirectory().getPath() + "/EDOPro";
-					Log.d("EDOPro", suggestedPath);
+					var suggestedPath = Environment.getExternalStorageDirectory().getPath() + "/EDOPro-KCG";
+					Log.d("EDOPro-KCG", suggestedPath);
 					i.putExtra(DocumentsContract.EXTRA_INITIAL_URI, Uri.parse(data_directory));
 					i.addCategory(Intent.CATEGORY_DEFAULT);
 					i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -501,7 +501,7 @@ public class MainActivity extends Activity {
 				new OutputStreamWriter(fOut).append(dest_dir).close();
 				fOut.close();
 			} catch (Exception e) {
-				Log.e("EDOPro", "cannot write to working directory file: " + e.getMessage());
+				Log.e("EDOPro-KCG", "cannot write to working directory file: " + e.getMessage());
 				finish();
 				return;
 			}
@@ -514,7 +514,7 @@ public class MainActivity extends Activity {
 				new OutputStreamWriter(fOut).append(data_dir).close();
 				fOut.close();
 			} catch (Exception e) {
-				Log.e("EDOPro", "cannot write to working directory file: " + e.getMessage());
+				Log.e("EDOPro-KCG", "cannot write to working directory file: " + e.getMessage());
 				finish();
 				return;
 			}
@@ -556,14 +556,14 @@ public class MainActivity extends Activity {
 					try {
 						var file1 = new File(getFilesDir(), "assets_copied");
 						if (!file1.createNewFile()) {
-							Log.e("EDOPro", "error when creating assets_copied file");
+							Log.e("EDOPro-KCG", "error when creating assets_copied file");
 						} else {
 							var wr = (new FileWriter(file1));
 							wr.write("" + BuildConfig.VERSION_CODE);
 							wr.flush();
 						}
 					} catch (Exception e) {
-						Log.e("EDOPro", "error when creating assets_copied file: " + e.getMessage());
+						Log.e("EDOPro-KCG", "error when creating assets_copied file: " + e.getMessage());
 					}
 					next();
 				})
