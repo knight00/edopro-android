@@ -51,7 +51,8 @@ LOCAL_CFLAGS += -DUPDATE_URL=\"$(UPDATE_URL)\"
 endif
 
 CLASSES_PATH := $(LOCAL_PATH)/deps
-GFRAME_PATH := $(CLASSES_PATH)/gframe
+EABI_CLASSES_PATH := $(LOCAL_PATH)/deps-armeabi
+GFRAME_PATH := $(CLASSES_PATH)/edopro/gframe
 LOCAL_C_INCLUDES := $(GFRAME_PATH)/CGUICustomContextMenu \
 					$(GFRAME_PATH)/CGUICustomTabControl \
 					$(GFRAME_PATH)/CGUICustomText \
@@ -92,12 +93,14 @@ LOCAL_SRC_FILES := $(GFRAME_PATH)/Android/COSAndroidOperator.cpp \
 				   $(GFRAME_PATH)/client_field.cpp \
 				   $(GFRAME_PATH)/client_updater.cpp \
 				   $(GFRAME_PATH)/core_utils.cpp \
+				   $(GFRAME_PATH)/crypto.cpp \
 				   $(GFRAME_PATH)/custom_skin_enum.cpp \
 				   $(GFRAME_PATH)/data_manager.cpp \
 				   $(GFRAME_PATH)/data_handler.cpp \
 				   $(GFRAME_PATH)/deck_con.cpp \
 				   $(GFRAME_PATH)/deck_manager.cpp \
 				   $(GFRAME_PATH)/discord_wrapper.cpp \
+				   $(GFRAME_PATH)/dll.cpp \
 				   $(GFRAME_PATH)/dllinterface.cpp \
 				   $(GFRAME_PATH)/drawing.cpp \
 				   $(GFRAME_PATH)/duelclient.cpp \
@@ -146,14 +149,18 @@ LOCAL_STATIC_LIBRARIES := Irrlicht \
 						  sfAudio \
 						  nlohmann-json
 
+LOCAL_SHARED_LIBRARIES := ocgcore
+
 include $(BUILD_SHARED_LIBRARY)
 
 $(call import-add-path,$(CLASSES_PATH))
+$(call import-add-path,$(CLASSES_PATH)/edopro)
 $(call import-module,irrlicht)
 $(call import-module,libevent)
 $(call import-module,sqlite3)
 $(call import-module,freetype)
 $(call import-module,gframe/lzma)
+$(call import-module,ocgcore)
 $(call import-module,fmt)
 $(call import-module,openssl)
 $(call import-module,libgit2)
