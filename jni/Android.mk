@@ -1,5 +1,10 @@
 LOCAL_PATH := $(call my-dir)/..
 
+# //kdiy///////////
+# Only build EDOProClient for these three ABIs, skip x86_64
+ifneq ($(TARGET_ARCH_ABI),x86_64)
+# //kdiy///////////
+
 include $(CLEAR_VARS)
 LOCAL_MODULE := EDOProClient
 
@@ -34,21 +39,27 @@ LOCAL_LDFLAGS += "-Wl,-z,max-page-size=16384"
 LOCAL_LDFLAGS += "-Wl,-z,common-page-size=16384"
 endif
 
-ifneq ($(PICS_URL),)
-LOCAL_CFLAGS += -DDEFAULT_PIC_URL=\"$(PICS_URL)\"
-endif
+# //kdiy///////////
+# ifneq ($(PICS_URL),)
+# LOCAL_CFLAGS += -DDEFAULT_PIC_URL=\"$(PICS_URL)\"
+# endif
 
-ifneq ($(FIELDS_URL),)
-LOCAL_CFLAGS += -DDEFAULT_FIELD_URL=\"$(FIELDS_URL)\"
-endif
+# ifneq ($(FIELDS_URL),)
+# LOCAL_CFLAGS += -DDEFAULT_FIELD_URL=\"$(FIELDS_URL)\"
+# endif
 
-ifneq ($(COVERS_URL),)
-LOCAL_CFLAGS += -DDEFAULT_COVER_URL=\"$(COVERS_URL)\"
-endif
+# ifneq ($(COVERS_URL),)
+# LOCAL_CFLAGS += -DDEFAULT_COVER_URL=\"$(COVERS_URL)\"
+# endif
 
-ifneq ($(UPDATE_URL),)
-LOCAL_CFLAGS += -DUPDATE_URL=\"$(UPDATE_URL)\"
-endif
+# ifneq ($(UPDATE_URL),)
+# LOCAL_CFLAGS += -DUPDATE_URL=\"$(UPDATE_URL)\"
+# endif
+
+LOCAL_CFLAGS += -DUpdate_PW=\"Inf2KCGa\" -DUPDATE_URL=\"http://1.15.14.207:3000/knight/upgrade/raw/branch/main/update.json\" -DVIP=true -DEK=true -DZip=\"aqafare35r36twtAA325QFA\" -DDEFAULT_JHDPIC_URL=\"http://1.15.14.207:3000/knight/hdpics/raw/branch/main/{}.jpg\" -DDEFAULT_PIC_URL=\"http://1.15.14.207:3000/knight/pics/raw/branch/main/{}.jpg\" -DDEFAULT_FIELD_URL=\"http://1.15.14.207:3000/knight/pics/raw/branch/main/field/{}.jpg\" -DDEFAULT_COVER_URL=\"http://1.15.14.207:3000/knight/pics/raw/branch/main/cover/{}.jpg\" -DDEFAULT_CLOSEUP_URL=\"http://1.15.14.207:3000/knight/pics/raw/branch/main/closeup/{}.png\" -DDEFAULT_SERVER_URL=\"1.15.14.207\"
+
+# LOCAL_CFLAGS += -DUpdate_PW=\"KCGV125\" -DUPDATE_URL=\"http://1.15.14.207:3000/knight/upgrade/raw/branch/main/updaten.json\" -DEK=true -DZip=\"aqafare35r36twtAA325QFA\" -DDEFAULT_JHDPIC_URL=\"http://1.15.14.207:3000/knight/hdpics/raw/branch/main/{}.jpg\" -DDEFAULT_PIC_URL=\"http://1.15.14.207:3000/knight/pics/raw/branch/main/{}.jpg\" -DDEFAULT_FIELD_URL=\"http://1.15.14.207:3000/knight/pics/raw/branch/main/field/{}.jpg\" -DDEFAULT_COVER_URL=\"http://1.15.14.207:3000/knight/pics/raw/branch/main/cover/{}.jpg\" -DDEFAULT_CLOSEUP_URL=\"http://1.15.14.207:3000/knight/pics/raw/branch/main/closeup/{}.png\" -DDEFAULT_SERVER_URL=\"1.15.14.207\"
+# //kdiy///////////
 
 CLASSES_PATH := $(LOCAL_PATH)/deps
 EABI_CLASSES_PATH := $(LOCAL_PATH)/deps-armeabi
@@ -149,23 +160,57 @@ LOCAL_STATIC_LIBRARIES := Irrlicht \
 						  sfAudio \
 						  nlohmann-json
 
+# //kdiy///////////
 LOCAL_SHARED_LIBRARIES := ocgcore
+LOCAL_CFLAGS += -I$(CLASSES_PATH)/ffmpeg/include
+# Shared libraries linking
+LOCAL_SHARED_LIBRARIES += avutil \
+                          avcodec \
+                          avformat \
+                          avfilter \
+                          swresample \
+                          swscale
+# //kdiy///////////
 
 include $(BUILD_SHARED_LIBRARY)
 
+# //kdiy///////////
+# Copy assets only for the 3 main ABIs
+include $(CLASSES_PATH)/copy-assets/Android.mk
+
+# FFmpeg and 32-bit/ARM dependencies loaded only here
+include $(CLASSES_PATH)/ffmpeg/Android.mk
+
+endif
+# //kdiy///////////
+
 $(call import-add-path,$(CLASSES_PATH))
 $(call import-add-path,$(CLASSES_PATH)/edopro)
+# //kdiy///////////
+# --- 2. UNIVERSAL MODULE IMPORTS (Required so ocgcore can compile on x86_64) ---
+$(call import-module,ocgcore)
+# //kdiy///////////
+
+# //kdiy///////////
+# If other modules are ONLY needed by EDOProClient, guard them too:
+ifneq ($(TARGET_ARCH_ABI),x86_64)
+# //kdiy///////////
 $(call import-module,irrlicht)
 $(call import-module,libevent)
 $(call import-module,sqlite3)
 $(call import-module,freetype)
 $(call import-module,gframe/lzma)
-$(call import-module,ocgcore)
+# //kdiy///////////
+# $(call import-module,ocgcore)
+# //kdiy///////////
 $(call import-module,fmt)
 $(call import-module,openssl)
 $(call import-module,libgit2)
 $(call import-module,curl)
 $(call import-module,sfAudio)
 $(call import-module,nlohmann-json)
+# //kdiy///////////
 
-include $(CLASSES_PATH)/copy-assets/Android.mk
+endif
+# include $(CLASSES_PATH)/copy-assets/Android.mk
+# //kdiy///////////
